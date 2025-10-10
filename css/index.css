@@ -1,0 +1,317 @@
+@charset "UTF-8";
+/* --- 変数定義 --- */
+:root {
+    --color-primary: #F87171; /* 赤系 */
+    --color-background-light: #F9FAFB;
+    --color-background-dark: #1F2937;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #374151;
+    --color-text-light: #111827;
+    --color-text-dark: #F3F4F6;
+    --color-text-secondary-light: #6B7280;
+    --color-text-secondary-dark: #9CA3AF;
+}
+
+/* --- 基本設定とダークモード --- */
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: var(--color-background-light);
+    color: var(--color-text-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+}
+
+body.dark-mode {
+    background-color: var(--color-background-dark);
+    color: var(--color-text-dark);
+}
+
+.container {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1rem; /* py-8 px-4 */
+}
+
+/* --- ヘッダー --- */
+.header {
+    text-align: center;
+    margin-bottom: 3rem; /* mb-12 */
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.logo-img {
+    height: 4rem; /* h-16 */
+    width: 4rem; /* w-16 */
+    border-radius: 50%;
+}
+
+.logo-title {
+    font-size: 2.25rem; /* text-4xl */
+    line-height: 2.5rem;
+    font-weight: 700; /* font-bold */
+    color: var(--color-primary);
+}
+@media (min-width: 768px) {
+    .logo-title {
+        font-size: 3rem; /* md:text-5xl */
+        line-height: 1;
+    }
+}
+
+.logo-subtitle {
+    font-size: 1.125rem; /* text-lg */
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .logo-subtitle {
+    color: var(--color-text-secondary-dark);
+}
+
+/* --- セクションタイトル --- */
+.section-title {
+    font-size: 1.875rem; /* text-3xl */
+    line-height: 2.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem; /* mb-8 */
+}
+
+/* --- 特徴 (Features) --- */
+#features {
+    margin-bottom: 4rem; /* mb-16 */
+}
+
+.feature-grid {
+    display: grid;
+    gap: 2rem; /* gap-8 */
+}
+@media (min-width: 768px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+    }
+}
+@media (min-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(4, 1fr); /* lg:grid-cols-4 */
+    }
+}
+
+.feature-card {
+    background-color: var(--color-card-light);
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    transition: box-shadow 300ms;
+    text-align: center;
+}
+.dark-mode .feature-card {
+    background-color: var(--color-card-dark);
+}
+
+.feature-card:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* hover:shadow-xl */
+}
+
+.feature-icon {
+    font-size: 3rem; /* text-5xl */
+    color: var(--color-primary);
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.feature-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600;
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.feature-description {
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .feature-description {
+    color: var(--color-text-secondary-dark);
+}
+
+/* --- 画面イメージ (Screens) --- */
+#screens {
+    margin-bottom: 4rem; /* mb-16 */
+}
+
+.screen-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start; /* 画像の高さが違うため上揃え */
+    gap: 2rem; /* gap-8 */
+}
+
+.screen-item {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+@media (min-width: 640px) {
+    .screen-item {
+        width: calc(50% - 1rem); /* sm:w-1/2 */
+    }
+}
+@media (min-width: 768px) {
+    .screen-item {
+        width: calc(25% - 1.5rem); /* md:w-1/4 */
+    }
+}
+
+.screen-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600;
+    margin-bottom: 1rem; /* mb-4 */
+    text-align: center;
+}
+
+.phone-frame {
+    background-color: #1F2937; /* bg-gray-800 */
+    padding: 0.5rem; /* p-2 */
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+}
+
+.phone-screen {
+    border-radius: 0.5rem; /* rounded-lg */
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- マッチングの流れ (Flow) --- */
+.flow-section {
+    background-color: var(--color-card-light);
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    padding: 2rem; /* p-8 */
+}
+.dark-mode .flow-section {
+    background-color: var(--color-card-dark);
+}
+
+.flow-steps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    text-align: center;
+}
+@media (min-width: 768px) {
+    .flow-steps {
+        flex-direction: row;
+        gap: 2rem;
+    }
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 180px;
+}
+
+.step-icon {
+    font-size: 3.75rem; /* text-6xl */
+    color: var(--color-primary);
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.step-title {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600;
+}
+
+.step-description {
+    color: var(--color-text-secondary-light);
+    font-size: 0.875rem;
+}
+.dark-mode .step-description {
+    color: var(--color-text-secondary-dark);
+}
+
+.flow-arrow {
+    color: var(--color-primary);
+    font-size: 2rem; /* text-4xl */
+    font-weight: 700;
+    transform: rotate(90deg);
+}
+@media (min-width: 768px) {
+    .flow-arrow {
+        transform: rotate(0deg); /* md:rotate-0 */
+    }
+}
+
+.highlight-box {
+    margin-top: 2rem; /* mt-8 */
+    text-align: center;
+    background-color: rgba(248, 113, 113, 0.1); /* bg-primary/10 */
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem;
+}
+.dark-mode .highlight-box {
+    background-color: rgba(248, 113, 113, 0.2); /* dark:bg-primary/20 */
+}
+
+.highlight-text {
+    font-size: 1.125rem; /* text-lg */
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+.highlight-text strong {
+    font-weight: 700;
+}
+@media (min-width: 768px) {
+    .highlight-text {
+        font-size: 1.25rem; /* md:text-xl */
+    }
+}
+
+/* --- フッター --- */
+.footer {
+    background-color: #E5E7EB; /* bg-gray-200 */
+    margin-top: 4rem; /* mt-16 */
+    padding: 1.5rem 0; /* py-6 */
+}
+.dark-mode .footer {
+    background-color: #1F2937; /* dark:bg-gray-800 */
+}
+
+.footer-content {
+    text-align: center;
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .footer-content {
+    color: var(--color-text-secondary-dark);
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* gap-4 */
+    margin-top: 0.5rem; /* mt-2 */
+}
+
+.footer-link {
+    transition: color 300ms;
+}
+
+.footer-link:hover {
+    color: var(--color-primary);
+}
