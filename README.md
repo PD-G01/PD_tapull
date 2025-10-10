@@ -14,7 +14,7 @@ git checkout develop
 git pull origin develop
 
 # 新しいブランチを作成して切り替え
-git checkout -b feature/あなたの名前-機能名
+git checkout -b feature/機能名
 # 例: git checkout -b feature/page
 ```
 
@@ -25,7 +25,7 @@ git checkout -b feature/あなたの名前-機能名
   - 例: `feature/registration`
   - 例: `feature/home-page`
 
-- `fix/名前-修正内容` （バグ修正の場合）
+- `fix/修正内容` （バグ修正の場合）
   - 例: `fix/login-error`
   - 例: `fix/button-style`
   - 例: `fix/responsive-design`
