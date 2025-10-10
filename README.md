@@ -7,33 +7,28 @@
 #### 作業開始前に必ずブランチを作成
 
 ```bash
-# 最新のmainブランチに移動
-git checkout main
+# 最新のdevelopブランチに移動
+git checkout develop
 
 # 最新の変更を取得
-git pull origin main
+git pull origin develop
 
 # 新しいブランチを作成して切り替え
 git checkout -b feature/あなたの名前-機能名
-# 例: git checkout -b feature/sudo-login
+# 例: git checkout -b feature/page
 ```
 
 #### ブランチ名の命名規則
 
-- `feature/名前-機能名` （新機能の場合）
-  - 例: `feature/sudo-login`
-  - 例: `feature/yamada-user-registration`
-  - 例: `feature/sato-home-page`
+- `feature/機能名` （新機能の場合）
+  - 例: `feature/login`
+  - 例: `feature/registration`
+  - 例: `feature/home-page`
 
 - `fix/名前-修正内容` （バグ修正の場合）
-  - 例: `fix/sudo-login-error`
-  - 例: `fix/yamada-button-style`
-  - 例: `fix/sato-responsive-design`
-
-- `docs/名前-ドキュメント名` （ドキュメント更新の場合）
-  - 例: `docs/sudo-readme-update`
-  - 例: `docs/yamada-api-documentation`
-  - 例: `docs/sato-setup-guide`
+  - 例: `fix/login-error`
+  - 例: `fix/button-style`
+  - 例: `fix/responsive-design`
 
 ### 作業の進め方
 
