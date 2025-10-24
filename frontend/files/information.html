@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>詳細情報 - 食PULL</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <style>
+        /* ページ固有スタイル（軽量） */
+        .detail-container { max-width:1100px; margin:1.5rem auto; padding:1rem; }
+        .card { background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:1rem; }
+        .detail-header { display:flex; gap:16px; align-items:center; }
+        .avatar { width:96px; height:96px; border-radius:12px; object-fit:cover; background:#f0f0f0; }
+        .meta { flex:1; }
+        .name { font-size:1.25rem; font-weight:700; margin:0; color:#222; }
+        .sub { color:#666; margin-top:4px; }
+        .verified { display:inline-flex; align-items:center; gap:6px; background:#e8f5e9; color:#2e7d32; padding:6px 10px; border-radius:999px; font-weight:600; margin-left:8px; }
+        .trust-row { margin-top:10px; display:flex; gap:12px; align-items:center; color:#666; font-size:0.95rem; }
+        .tag-list { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+        .tag { background:#e0f2f1; color:#00796b; padding:6px 10px; border-radius:16px; font-size:0.9rem; }
+        .grid { display:grid; grid-template-columns: 1fr 340px; gap:20px; margin-top:16px; align-items:start; }
+        .info-row { display:flex; gap:8px; align-items:flex-start; margin-bottom:12px; color:#444; }
+        .info-row .material-icons { color:#777; margin-top:2px; }
+        .actions { display:flex; gap:10px; margin-top:8px; }
+        .btn { border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+        .btn-primary { background:#4caf50; color:#fff; }
+        .btn-ghost { background:#f5f5f5; color:#333; }
+        .map-preview { height:200px; border-radius:10px; overflow:hidden; background:linear-gradient(90deg,#e9e9e9,#f6f6f6); display:flex; align-items:center; justify-content:center; color:#888; }
+        .reviews { margin-top:14px; }
+        .review { padding:10px 0; border-bottom:1px solid #f0f0f0; }
+        .report { margin-top:18px; }
+        @media (max-width:980px) { .grid{ grid-template-columns: 1fr; } .map-preview{ height:160px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img alt="食PULL Logo" class="logo-img" src="../image/食pull.png">
+                <h1 class="logo-title">食PULL</h1>
+            </div>
+            <p class="logo-subtitle">フードドライブをもっと身近に、もっと簡単に。</p>
+        </header>
+
+        <main class="detail-container">
+            <div class="card">
+                <div class="detail-header">
+                    <img class="avatar" src="../image/placeholder.jpg" alt="団体／ユーザー画像">
+                    <div class="meta">
+                        <h2 class="name">フードバンク みらい <span class="verified"><span class="material-icons">verified</span>認証済み</span></h2>
+                        <div class="sub">非営利団体・受け取り拠点 — 最終更新: 2025-10-01</div>
+
+                        <div class="trust-row">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span class="material-icons" style="color:#f5a623">star</span>
+                                <strong>4.2</strong>
+                                <span style="color:#777;">(レビュー 32件)</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span class="material-icons">shield</span>
+                                <span>本人確認済み</span>
+                            </div>
+                        </div>
+
+                        <div class="tag-list" aria-hidden="true">
+                            <span class="tag">米</span>
+                            <span class="tag">野菜</span>
+                            <span class="tag">缶詰</span>
+                            <span class="tag">調味料</span>
+                        </div>
+
+                        <div class="actions" style="margin-top:12px;">
+                            <button class="btn btn-primary" onclick="location.href='mailto:info@example.org'"><span class="material-icons">message</span>&nbsp;メッセージ</button>
+                            <button class="btn btn-ghost" onclick="navigator.share?.({title:'フードバンク みらい',text:'この団体を共有します',url:location.href})"><span class="material-icons">share</span>&nbsp;共有</button>
+                            <a class="btn btn-ghost" href="view_map.html"><span class="material-icons">map</span>&nbsp;地図で表示</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <div style="margin-top:12px;">
+                            <div class="info-row">
+                                <span class="material-icons">location_on</span>
+                                <div>
+                                    <div style="font-weight:700;color:#222;">東京都新宿区西新宿2-8-1</div>
+                                    <div style="color:#666;font-size:0.95rem;">最寄り駅: 新宿駅（徒歩12分）</div>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="material-icons">access_time</span>
+                                <div>
+                                    <div style="font-weight:700;color:#222;">営業時間</div>
+                                    <div style="color:#666;font-size:0.95rem;">平日 10:00 - 18:00 / 土 10:00 - 15:00 / 日・祝 休み</div>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="material-icons">phone</span>
+                                <div>
+                                    <div style="font-weight:700;color:#222;">連絡先</div>
+                                    <div style="color:#666;font-size:0.95rem;">03-xxxx-xxxx</div>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="material-icons">info</span>
+                                <div style="color:#444;">受け取り条件: 常温保存可能な未開封品を優先して受け付けます。生鮮食品は事前連絡が必要です。</div>
+                            </div>
+
+                            <div class="report">
+                                <h3 style="margin:8px 0;">問題の報告</h3>
+                                <form onsubmit="alert('報告を受け付けました（ダミー）'); return false;">
+                                    <textarea required style="width:100%;height:80px;border-radius:8px;padding:8px;border:1px solid #e6e6e6;" placeholder="不適切情報や誤りがある場合はここに記入してください"></textarea>
+                                    <div style="display:flex;gap:8px;margin-top:8px;">
+                                        <button class="btn btn-primary" type="submit">送信</button>
+                                        <button class="btn btn-ghost" type="button" onclick="this.closest('form').querySelector('textarea').value=''">クリア</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="reviews">
+                                <h3 style="margin:12px 0 8px 0;">ユーザーレビュー</h3>
+                                <div class="review">
+                                    <div style="display:flex;justify-content:space-between;color:#666;font-size:0.95rem;"><strong>山田太郎</strong><span>2025-10-10</span></div>
+                                    <div style="margin-top:6px;color:#333;">迅速に対応していただき助かりました。受け渡しもスムーズで安心できました。</div>
+                                </div>
+                                <div class="review">
+                                    <div style="display:flex;justify-content:space-between;color:#666;font-size:0.95rem;"><strong>佐藤花子</strong><span>2025-09-28</span></div>
+                                    <div style="margin-top:6px;color:#333;">場所がわかりやすく、スタッフの方も丁寧でした。</div>
+                                </div>
+                                <div style="text-align:center;padding:12px;color:#666;">さらに表示する...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside>
+                        <div class="card" style="padding:12px;">
+                            <h4 style="margin:0 0 10px 0;">地図プレビュー</h4>
+                            <div class="map-preview">ミニマップ（クリックで拡大）</div>
+
+                            <h4 style="margin:14px 0 8px 0;">提供可能な食材</h4>
+                            <div class="tag-list" style="margin-bottom:12px;">
+                                <span class="tag">缶詰</span>
+                                <span class="tag">パスタ</span>
+                                <span class="tag">乾麺</span>
+                                <span class="tag">ベビーフード</span>
+                            </div>
+
+                            <h4 style="margin:14px 0 8px 0;">運営情報</h4>
+                            <div style="color:#666;font-size:0.95rem;">
+                                NPO法人 みらいフードバンク<br>
+                                設立: 2018年 / ボランティア数: 約30名
+                            </div>
+
+                            <h4 style="margin:14px 0 8px 0;">安全対策</h4>
+                            <ul style="color:#666;padding-left:18px;margin:0 0 8px 0;">
+                                <li>本人確認済みアカウント</li>
+                                <li>レビュー・評価システム</li>
+                                <li>運営による情報確認プロセス</li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>© 2025 食PULL. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a class="footer-link">プライバシーポリシー</a>
+                <a class="footer-link">利用規約</a>
+                <a class="footer-link">お問い合わせ</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
