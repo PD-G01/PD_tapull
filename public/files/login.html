@@ -6,160 +6,13 @@
   <title>ログイン - 食PULL</title>
 
   <!-- 既存グローバルCSS（色・ダークモードなど） -->
-  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="../css/login.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-
-  <!-- ページ固有のスタイル（中央寄せ + 表示不具合修正を統合） -->
-  <style>
-    /* ---- ページ全体を縦横中央に配置（ロゴ＋フォームごと中央） ---- */
-    body.login-page {    
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      /* カスタムプロパティが未定義でも安全なフォールバックを指定 */
-      background-color: var(--color-background-light, #f3f4f6);
-      color: var(--color-text-light, #111827);
-    }
-
-    /* コンテナ幅 */
-    .login-container {
-      width: 100%;
-      max-width: 460px;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-
-    /* ログインカード */
-    .login-card {
-      /* フォールバックで不透明な背景を常に指定 */
-      background-color: var(--color-card-light, #ffffff);
-      padding: 2.0rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      width: 100%;
-      text-align: center;
-      transition: background-color 0.3s ease;
-    }
-    /* ダークモード時のフォールバック色 */
-    .dark-mode .login-card {
-      background-color: var(--color-card-dark, #0f172a);
-    }
-
-    /* フォーム基本 */
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.0rem;
-      margin-top: 1rem;
-    }
-    .form-group { text-align: left; }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-weight: 600;
-      color: var(--color-text-light, #111827);
-    }
-    .dark-mode .form-group label { color: var(--color-text-dark, #f8fafc); }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.7rem 0.9rem;
-      border-radius: 0.5rem;
-      border: 1px solid #d1d5db;
-      font-size: 1rem;
-      box-sizing: border-box;
-      background: transparent;
-      color: inherit;
-    }
-    .form-group input::placeholder { color: var(--color-text-secondary-light, #6b7280); }
-    .dark-mode .form-group input::placeholder { color: var(--color-text-secondary-dark, #9ca3af); }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--color-primary, #ef4444);
-      box-shadow: 0 0 0 3px rgba(248,113,113,0.18);
-    }
-
-    /* パスワード入力と表示切替 */
-    .password-wrapper { position: relative; }
-    .password-wrapper input { padding-right: 3.5rem; }
-    .pwd-toggle {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      padding: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-text-secondary-light, #6b7280);
-    }
-    .dark-mode .pwd-toggle { color: var(--color-text-secondary-dark, #9ca3af); }
-
-    /* チェックボックス行（リンクは削除済み） */
-    .form-row {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 1rem;
-      margin: 0.25rem 0;
-    }
-    .checkbox { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--color-text-secondary-light, #6b7280); }
-
-    /* ---- ログインボタン：表示不具合を強制的に解消するスタイル ---- */
-    .login-button {
-      background-color: var(--color-primary, #ef4444) !important; /* 背景を強制 */
-      color: #ffffff !important;                          /* 文字色を強制 */
-      opacity: 1 !important;                              /* 不透明 */
-      visibility: visible !important;                     /* 表示 */
-      text-indent: 0 !important;                          /* テキストのインデント解除 */
-      transform: none !important;                         /* 不要な transform を解除 */
-      position: relative !important;
-      z-index: 2 !important;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-    }
-    .login-button:hover {
-      background-color: #ef4444 !important;
-      transform: translateY(-1px) !important;
-    }
-
-    /* 保険：疑似要素が重なっている場合の解除 */
-    .login-button::before,
-    .login-button::after {
-      display: none !important;
-      content: none !important;
-    }
-
-    .form-link { margin-top: 0.6rem; font-size: 0.95rem; color: var(--color-text-secondary-light, #6b7280); }
-    .form-link a { color: var(--color-primary, #ef4444); text-decoration: none; font-weight: 600; }
-    .form-link a:hover { text-decoration: underline; }
-    .dark-mode .form-link { color: var(--color-text-secondary-dark, #9ca3af); }
-
-    /* モバイル微調整 */
-    @media (max-width: 420px) {
-      .login-card { padding: 1.25rem; }
-      .password-wrapper input { padding-right: 3rem; }
-      .form-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-    }
-  </style>
 </head>
 <body class="login-page">
   <div class="container login-container">
     <!-- ロゴとサブタイトル -->
-    <header class="header" aria-hidden="true">
+    <header class="header">
       <div class="logo-container">
         <img src="image/食pull.png" alt="食PULL ロゴ" class="logo-img">
         <h1 class="logo-title">食PULL</h1>
@@ -171,7 +24,7 @@
     <main class="login-card" role="main" aria-labelledby="login-title">
       <h2 id="login-title" class="section-title">ログイン</h2>
 
-      <form class="login-form" action="home.html" method="POST" autocomplete="on" novalidate>
+      <form class="login-form" action="home.html" method="POST" autocomplete="on">
         <div class="form-group">
           <label for="email">メールアドレス</label>
           <input type="email" id="email" name="email" placeholder="example@mail.com" required autocomplete="email">
@@ -212,37 +65,39 @@
 
   <!-- JS: パスワード表示切替と簡易バリデーション -->
   <script>
-    (function(){
-      const form = document.querySelector('.login-form');
-      const email = document.getElementById('email');
-      const pwd = document.getElementById('password');
-      const toggle = document.querySelector('.pwd-toggle');
-
-      // パスワード表示切替
-      toggle.addEventListener('click', () => {
-        if (pwd.type === 'password') {
-          pwd.type = 'text';
-          toggle.innerHTML = '<span class="material-icons">visibility_off</span>';
-        } else {
-          pwd.type = 'password';
-          toggle.innerHTML = '<span class="material-icons">visibility</span>';
-        }
-      });
-
-      // 送信時簡易チェック
-      form.addEventListener('submit', (e) => {
-        if (!email.value.trim() || !pwd.value.trim()) {
-          e.preventDefault();
-          alert('メールアドレスとパスワードを入力してください。');
-          return;
-        }
-        if (pwd.value.length < 8) {
-          e.preventDefault();
-          alert('パスワードは8文字以上で入力してください。');
-          pwd.focus();
-        }
-      });
-    })();
-  </script>
+         (function(){
+           const form = document.querySelector('.login-form');
+           const email = document.getElementById('email');
+           const pwd = document.getElementById('password');
+           const toggle = document.querySelector('.pwd-toggle');
+ 
+           // パスワード表示切替
+           toggle.addEventListener('click', () => {
+             if (pwd.type === 'password') {
+               pwd.type = 'text';
+               toggle.innerHTML = '<span class="material-icons">visibility_off</span>';
+             } else {
+               pwd.type = 'password';
+               toggle.innerHTML = '<span class="material-icons">visibility</span>';
+             }
+           });
+ 
+           // 送信時簡易チェック
+           form.addEventListener('submit', (e) => {
+             // ブラウザ組み込みのバリデーションを優先
+             if (!form.checkValidity()) {
+               e.preventDefault();
+               form.reportValidity();
+               return;
+             }
+             // 追加チェック：パスワード長
+             if (pwd.value.trim().length < 8) {
+               e.preventDefault();
+               alert('パスワードは8文字以上で入力してください。');
+               pwd.focus();
+             }
+           });
+         })();
+       </script>
 </body>
 </html>
