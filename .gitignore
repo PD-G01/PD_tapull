@@ -2,3 +2,40 @@
 node_modules/
 
 .env
+
+# OS
+.DS_Store
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+*.local
+
+# Env
+.env
+.env.local
+.npmrc
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build/Artifacts
+dist/
+coverage/
+
+# Hosting (safety)
+public/node_modules/
+public/.env
+public/.env.local
+public/.DS_Store
+
+# Functions
+functions/node_modules/
+functions/.eslintcache
+functions/.env
+functions/.env.local
+functions/firebase-debug.log
+functions/firebase-debug.*.log

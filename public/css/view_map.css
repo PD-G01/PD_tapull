@@ -1,0 +1,103 @@
+.map-container {
+    position: relative;
+    height: calc(100vh - 80px); /* ヘッダーの高さを引いた残り */
+    width: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.filter-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1;
+}
+
+.filter-button {
+    background: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.location-popup {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    padding: 20px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 2;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.location-name {
+    font-size: 1.2em;
+    margin-bottom: 8px;
+}
+
+.location-address {
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.food-info {
+    margin: 16px 0;
+}
+
+.food-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+}
+
+.contact-button {
+    width: 100%;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.nav-menu {
+    margin-left: auto;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: inherit;
+}

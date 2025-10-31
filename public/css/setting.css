@@ -1,0 +1,184 @@
+/* 設定画面のスタイル */
+:root {
+    --color-primary: #F87171;
+    --color-background-light: #F9FAFB;
+    --color-background-dark: #1F2937;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #374151;
+    --color-text-light: #111827;
+    --color-text-dark: #F3F4F6;
+    --color-text-secondary-light: #6B7280;
+    --color-text-secondary-dark: #9CA3AF;
+    --color-border: #E5E7EB;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    background-color: var(--color-background-light);
+    z-index: 100;
+}
+
+.back-button {
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1rem;
+}
+
+.settings-header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--color-text-light);
+}
+
+.settings-content {
+    padding: 1rem;
+}
+
+.settings-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: var(--color-text-secondary-light);
+    margin-bottom: 1rem;
+}
+
+.settings-list {
+    background-color: var(--color-card-light);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.settings-item .material-icons {
+    color: var(--color-text-secondary-light);
+}
+
+/* スイッチトグルのスタイル */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* ログアウトボタン */
+.logout-button {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: transparent;
+    color: #EF4444;
+    border: 1px solid #EF4444;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: #FEE2E2;
+}
+
+/* ダークモード対応 */
+body.dark-mode {
+    background-color: var(--color-background-dark);
+}
+
+body.dark-mode .settings-header {
+    background-color: var(--color-background-dark);
+    border-bottom-color: var(--color-card-dark);
+}
+
+body.dark-mode .settings-header h1 {
+    color: var(--color-text-dark);
+}
+
+body.dark-mode .section-title {
+    color: var(--color-text-secondary-dark);
+}
+
+body.dark-mode .settings-list {
+    background-color: var(--color-card-dark);
+}
+
+body.dark-mode .settings-item {
+    border-bottom-color: var(--color-text-secondary-dark);
+}
+
+body.dark-mode .settings-item .material-icons {
+    color: var(--color-text-secondary-dark);
+}
+
+body.dark-mode .settings-item span {
+    color: var(--color-text-dark);
+}
