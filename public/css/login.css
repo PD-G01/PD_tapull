@@ -250,24 +250,24 @@ body.login-page {
 
 /* ログインボタン（index.css のトーンに合わせる） */
 .login-button {
-  display: block !important;
-  width: 100% !important;
-  padding: 0.75rem !important;
-  background-color: var(--color-primary) !important;
-  color: black !important;
-  font-size: 1.05rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
-  text-indent: 0 !important;
-  text-transform: none !important;
-  white-space: normal !important;
-  border: none !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 6px 18px rgba(248, 113, 113, 0.08) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  position: relative !important;
-  z-index: 5 !important;
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-indent: 0;
+  text-transform: none;
+  white-space: normal;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 18px rgba(248, 113, 113, 0.08);
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+  z-index: 5;
 }
 
 /* 擬似要素やアイコンで隠されている場合の対策 */
