@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,8 +8,9 @@
 
   <!-- 既存グローバルCSS（色・ダークモードなど） -->
   <link rel="stylesheet" href="../css/login.css">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </head>
+
 <body class="login-page">
   <div class="container login-container">
     <!-- ロゴとサブタイトル -->
@@ -33,7 +35,8 @@
         <div class="form-group">
           <label for="password">パスワード</label>
           <div class="password-wrapper">
-            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" minlength="8">
+            <input type="password" id="password" name="password" placeholder="••••••••" required
+              autocomplete="current-password" minlength="8">
             <button type="button" class="pwd-toggle" aria-label="パスワード表示切替" title="パスワード表示切替">
               <span class="material-icons">visibility</span>
             </button>
@@ -65,39 +68,33 @@
 
   <!-- JS: パスワード表示切替と簡易バリデーション -->
   <script>
-         (function(){
-           const form = document.querySelector('.login-form');
-           const email = document.getElementById('email');
-           const pwd = document.getElementById('password');
-           const toggle = document.querySelector('.pwd-toggle');
- 
-           // パスワード表示切替
-           toggle.addEventListener('click', () => {
-             if (pwd.type === 'password') {
-               pwd.type = 'text';
-               toggle.innerHTML = '<span class="material-icons">visibility_off</span>';
-             } else {
-               pwd.type = 'password';
-               toggle.innerHTML = '<span class="material-icons">visibility</span>';
-             }
-           });
- 
-           // 送信時簡易チェック
-           form.addEventListener('submit', (e) => {
-             // ブラウザ組み込みのバリデーションを優先
-             if (!form.checkValidity()) {
-               e.preventDefault();
-               form.reportValidity();
-               return;
-             }
-             // 追加チェック：パスワード長
-             if (pwd.value.trim().length < 8) {
-               e.preventDefault();
-               alert('パスワードは8文字以上で入力してください。');
-               pwd.focus();
-             }
-           });
-         })();
-       </script>
+    (function () {
+      const form = document.querySelector('.login-form');
+      const pwd = document.getElementById('password');
+      const toggle = document.querySelector('.pwd-toggle');
+
+      // パスワード表示切替
+      toggle.addEventListener('click', () => {
+        const icon = toggle.querySelector('.material-icons');
+        if (pwd.type === 'password') {
+          pwd.type = 'text';
+          icon.textContent = 'visibility_off';
+        } else {
+          pwd.type = 'password';
+          icon.textContent = 'visibility';
+        }
+      });
+
+      // 送信時簡易チェック
+      form.addEventListener('submit', (e) => {
+        // ブラウザ組み込みのバリデーションを優先
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          form.reportValidity();
+        }
+      });
+    })();
+  </script>
 </body>
+
 </html>
