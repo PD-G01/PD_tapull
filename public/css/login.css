@@ -1,0 +1,317 @@
+/* login ページ用スタイル（index.css のデザイン基準に準拠） */
+
+body.login-page {
+  /* レイアウト（画面中央寄せ） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  background-color: var(--color-background-light);
+  color: var(--color-text-light);
+  font-family: inherit;
+  /* index.css と同じフォントを継承 */
+}
+
+/* 外側コンテナは index.css の .container と調和させる */
+.login-container {
+  width: 100%;
+  max-width: 460px;
+  padding: 1rem;
+}
+
+/* カード（index.css のカード系スタイルに合わせる） */
+.login-card {
+  background-color: var(--color-card-light);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  text-align: center;
+  transition: background-color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.dark-mode .login-card {
+  background-color: var(--color-card-dark);
+}
+
+/* ロゴ周り（index.css のロゴ基準を反映） */
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.logo-img {
+  height: 3.5rem;
+  width: 3.5rem;
+  border-radius: 50%;
+}
+
+.logo-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.logo-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary-light);
+}
+
+.dark-mode .logo-subtitle {
+  color: var(--color-text-secondary-dark);
+}
+
+/* セクションタイトル */
+.section-title {
+  font-size: 1.875rem;
+  /* index.css と同じ */
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+/* フォーム全体 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* 入力周り */
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+.dark-mode .form-group label {
+  color: var(--color-text-dark);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: transparent;
+  color: inherit;
+}
+
+.form-group input::placeholder {
+  color: var(--color-text-secondary-light);
+}
+
+.dark-mode .form-group input::placeholder {
+  color: var(--color-text-secondary-dark);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+}
+
+/* プレースホルダ（入力例）の色を薄くする（クロスブラウザ対応） */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  /* 薄いグレー */
+  opacity: 1;
+  /* Firefox 対策 */
+}
+
+.form-group input::-webkit-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+.form-group input:-webkit-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+.form-group input::-moz-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  opacity: 1;
+}
+
+/* Firefox 19+ */
+.form-group input:-moz-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  opacity: 1;
+}
+
+/* Firefox 4-18 */
+.form-group input:-ms-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+/* ダークモードでは別色で調整 */
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input::-webkit-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input:-webkit-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input::-moz-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+  opacity: 1;
+}
+
+.dark-mode .form-group input:-moz-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+  opacity: 1;
+}
+
+.dark-mode .form-group input:-ms-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+/* パスワードとトグル */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 3.5rem;
+}
+
+.pwd-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary-light);
+}
+
+.dark-mode .pwd-toggle {
+  color: var(--color-text-secondary-dark);
+}
+
+/* フォーム行（チェックボックス / 忘れた等） */
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary-light);
+}
+
+.small-link {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary-light);
+  text-decoration: none;
+}
+
+.small-link:hover {
+  color: var(--color-primary);
+}
+
+.dark-mode .small-link {
+  color: var(--color-text-secondary-dark);
+}
+
+/* ログインボタン（index.css のトーンに合わせる） */
+.login-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-indent: 0;
+  text-transform: none;
+  white-space: normal;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 18px rgba(248, 113, 113, 0.08);
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+  z-index: 5;
+}
+
+/* 擬似要素やアイコンで隠されている場合の対策 */
+.login-button::before,
+.login-button::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* 下部リンク */
+.form-link {
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary-light);
+  text-align: center;
+}
+
+.form-link a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.form-link a:hover {
+  text-decoration: underline;
+}
+
+.dark-mode .form-link {
+  color: var(--color-text-secondary-dark);
+}
+
+/* レスポンシブ微調整（index.css の基準に合わせる） */
+@media (max-width: 420px) {
+  .login-card {
+    padding: 1.25rem;
+  }
+
+  .password-wrapper input {
+    padding-right: 3rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
