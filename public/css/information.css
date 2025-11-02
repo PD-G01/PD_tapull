@@ -27,52 +27,10 @@
     .map-preview { height:160px; }
 }
 
-.app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f5f5f5;
-}
+/* 以下は index.css に移す/既に index.css にあるため情報ページ固有ではないスタイルは削除しました */
+/* ...existing code... */
 
-.header {
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 0.8rem;
-    position: relative;
-    width: 100%;
-    z-index: 1000;
-}
-
-.header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.logo-img {
-    height: 2rem;
-}
-
-.logo-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #333;
-}
-
-.logo-subtitle {
-    color: #666;
-    font-size: 0.95rem;
-    margin: 0;
-}
-
+/* ページ固有で残すスタイル（index.css にないもの） */
 .map-container {
     flex: 1;
     position: relative;
@@ -261,10 +219,6 @@
 
 .info-text {
     color: #444;
-}
-
-.section-title {
-    margin: 8px 0;
 }
 
 .section-title--reviews {
