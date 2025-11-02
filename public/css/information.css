@@ -67,14 +67,16 @@
     color: #333;
 }
 
+.logo-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
 .map-container {
     flex: 1;
     position: relative;
-    .map-container {
-    flex: 1;
-    position: relative;
     padding-top: var(--header-height); /* ヘッダーの高さ分 */
-}
 }
 
 #map {
@@ -243,14 +245,82 @@
     background: #e0e0e0;
 }
 
-@media (max-width: 768px) {
-    .control-panel {
-        width: 95%;
-    }
+.actions--top {
+    margin-top: 12px;
+}
 
-    .location-popup {
-        height: 85vh;
-    }
+.info-title {
+    font-weight: 700;
+    color: #222;
+}
+
+.info-sub {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.info-text {
+    color: #444;
+}
+
+.section-title {
+    margin: 8px 0;
+}
+
+.section-title--reviews {
+    margin: 12px 0 8px 0;
+}
+
+.report-textarea {
+    width: 100%;
+    height: 80px;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid #e6e6e6;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.review-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.review-body {
+    margin-top: 6px;
+    color: #333;
+}
+
+.more-link {
+    text-align: center;
+    padding: 12px;
+    color: #666;
+}
+
+.card--compact {
+    padding: 12px;
+}
+
+.tag-list--aside {
+    margin-bottom: 12px;
+}
+
+.aside-text {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.safety-list {
+    color: #666;
+    padding-left: 18px;
+    margin: 0 0 8px 0;
 }
 
 .rating-display {

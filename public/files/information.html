@@ -46,7 +46,7 @@
                             <span class="tag">調味料</span>
                         </div>
 
-                        <div class="actions" style="margin-top:12px;">
+                        <div class="actions actions--top">
                             <button class="btn btn-primary" onclick="location.href='mailto:info@example.org'"><span
                                     class="material-icons">message</span>&nbsp;メッセージ</button>
                             <button class="btn btn-ghost"
@@ -64,40 +64,38 @@
                             <div class="info-row">
                                 <span class="material-icons">location_on</span>
                                 <div>
-                                    <div style="font-weight:700;color:#222;">東京都新宿区西新宿2-8-1</div>
-                                    <div style="color:#666;font-size:0.95rem;">最寄り駅: 新宿駅（徒歩12分）</div>
+                                    <div class="info-title">東京都新宿区西新宿2-8-1</div>
+                                    <div class="info-sub">最寄り駅: 新宿駅（徒歩12分）</div>
                                 </div>
                             </div>
 
                             <div class="info-row">
                                 <span class="material-icons">access_time</span>
                                 <div>
-                                    <div style="font-weight:700;color:#222;">営業時間</div>
-                                    <div style="color:#666;font-size:0.95rem;">平日 10:00 - 18:00 / 土 10:00 - 15:00 / 日・祝
-                                        休み</div>
+                                    <div class="info-title">営業時間</div>
+                                    <div class="info-sub">平日 10:00 - 18:00 / 土 10:00 - 15:00 / 日・祝 休み</div>
                                 </div>
                             </div>
 
                             <div class="info-row">
                                 <span class="material-icons">phone</span>
                                 <div>
-                                    <div style="font-weight:700;color:#222;">連絡先</div>
-                                    <div style="color:#666;font-size:0.95rem;">03-xxxx-xxxx</div>
+                                    <div class="info-title">連絡先</div>
+                                    <div class="info-sub">03-xxxx-xxxx</div>
                                 </div>
                             </div>
 
                             <div class="info-row">
                                 <span class="material-icons">info</span>
-                                <div style="color:#444;">受け取り条件: 常温保存可能な未開封品を優先して受け付けます。生鮮食品は事前連絡が必要です。</div>
+                                <div class="info-text">受け取り条件: 常温保存可能な未開封品を優先して受け付けます。生鮮食品は事前連絡が必要です。</div>
                             </div>
 
                             <div class="report">
-                                <h3 style="margin:8px 0;">問題の報告</h3>
+                                <h3 class="section-title">問題の報告</h3>
                                 <form id="report-form">
-                                    <textarea id="report-text" required
-                                        style="width:100%;height:80px;border-radius:8px;padding:8px;border:1px solid #e6e6e6;"
+                                    <textarea id="report-text" required class="report-textarea"
                                         placeholder="不適切情報や誤りがある場合はここに記入してください"></textarea>
-                                    <div style="display:flex;gap:8px;margin-top:8px;">
+                                    <div class="form-actions">
                                         <button id="report-submit" class="btn btn-primary" type="submit">送信</button>
                                         <button id="report-clear" class="btn btn-ghost" type="button">クリア</button>
                                     </div>
@@ -105,45 +103,45 @@
                             </div>
 
                             <div class="reviews">
-                                <h3 style="margin:12px 0 8px 0;">ユーザーレビュー</h3>
+                                <h3 class="section-title section-title--reviews">ユーザーレビュー</h3>
                                 <div class="review">
-                                    <div
-                                        style="display:flex;justify-content:space-between;color:#666;font-size:0.95rem;">
-                                        <strong>山田太郎</strong><span>2025-10-10</span></div>
-                                    <div style="margin-top:6px;color:#333;">迅速に対応していただき助かりました。受け渡しもスムーズで安心できました。</div>
+                                    <div class="review-meta">
+                                        <strong>山田太郎</strong><span>2025-10-10</span>
+                                    </div>
+                                    <div class="review-body">迅速に対応していただき助かりました。受け渡しもスムーズで安心できました。</div>
                                 </div>
                                 <div class="review">
-                                    <div
-                                        style="display:flex;justify-content:space-between;color:#666;font-size:0.95rem;">
-                                        <strong>佐藤花子</strong><span>2025-09-28</span></div>
-                                    <div style="margin-top:6px;color:#333;">場所がわかりやすく、スタッフの方も丁寧でした。</div>
+                                    <div class="review-meta">
+                                        <strong>佐藤花子</strong><span>2025-09-28</span>
+                                    </div>
+                                    <div class="review-body">場所がわかりやすく、スタッフの方も丁寧でした。</div>
                                 </div>
-                                <div style="text-align:center;padding:12px;color:#666;">さらに表示する...</div>
+                                <div class="more-link">さらに表示する...</div>
                             </div>
                         </div>
                     </div>
 
                     <aside>
-                        <div class="card" style="padding:12px;">
-                            <h4 style="margin:0 0 10px 0;">地図プレビュー</h4>
+                        <div class="card card--compact">
+                            <h4 class="section-title" style="margin:0 0 10px 0;">地図プレビュー</h4>
                             <div class="map-preview">ミニマップ（クリックで拡大）</div>
 
-                            <h4 style="margin:14px 0 8px 0;">提供可能な食材</h4>
-                            <div class="tag-list" style="margin-bottom:12px;">
+                            <h4 class="section-title">提供可能な食材</h4>
+                            <div class="tag-list tag-list--aside">
                                 <span class="tag">缶詰</span>
                                 <span class="tag">パスタ</span>
                                 <span class="tag">乾麺</span>
                                 <span class="tag">ベビーフード</span>
                             </div>
 
-                            <h4 style="margin:14px 0 8px 0;">運営情報</h4>
-                            <div style="color:#666;font-size:0.95rem;">
+                            <h4 class="section-title">運営情報</h4>
+                            <div class="aside-text">
                                 NPO法人 みらいフードバンク<br>
                                 設立: 2018年 / ボランティア数: 約30名
                             </div>
 
-                            <h4 style="margin:14px 0 8px 0;">安全対策</h4>
-                            <ul style="color:#666;padding-left:18px;margin:0 0 8px 0;">
+                            <h4 class="section-title">安全対策</h4>
+                            <ul class="safety-list">
                                 <li>本人確認済みアカウント</li>
                                 <li>レビュー・評価システム</li>
                                 <li>運営による情報確認プロセス</li>
