@@ -120,6 +120,4 @@
 /* 小さなユーティリティ（information.html 内で参照あり） */
 .trust-item { display:flex; align-items:center; gap:6px; color:#666; }
 
-.info { /* wrapper for info column */ }
-
 /* section-title は index.css 側の共通定義を使うためここでは残さず共通側を利用してください */
