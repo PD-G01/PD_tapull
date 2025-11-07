@@ -34,13 +34,13 @@
                                 <strong>4.2</strong>
                                 <span class="review-count">(レビュー 32件)</span>
                             </div>
-                            <div style="display:flex;align-items:center;gap:6px;">
+                            <div class="trust-item">
                                 <span class="material-icons">shield</span>
                                 <span>本人確認済み</span>
                             </div>
                         </div>
 
-                        <div class="tag-list" aria-hidden="true">
+                        <div class="tag-list">
                             <span class="tag">米</span>
                             <span class="tag">野菜</span>
                             <span class="tag">缶詰</span>
@@ -48,11 +48,8 @@
                         </div>
 
                         <div class="actions actions--top">
-                            <button class="btn btn-primary" onclick="location.href='mailto:info@example.org'"><span
-                                    class="material-icons">message</span>&nbsp;メッセージ</button>
-                            <button class="btn btn-ghost"
-                                onclick="navigator.share?.({title:'フードバンク みらい',text:'この団体を共有します',url:location.href})"><span
-                                    class="material-icons">share</span>&nbsp;共有</button>
+                            <button id="btn-message" class="btn btn-primary"><span class="material-icons">message</span>&nbsp;メッセージ</button>
+                            <button id="btn-share" class="btn btn-ghost"><span class="material-icons">share</span>&nbsp;共有</button>
                             <a class="btn btn-ghost" href="view_map.html"><span
                                     class="material-icons">map</span>&nbsp;地図で表示</a>
                         </div>
@@ -61,7 +58,7 @@
 
                 <div class="grid">
                     <div>
-                        <div style="margin-top:12px;">
+                        <div class="info">
                             <div class="info-row">
                                 <span class="material-icons">location_on</span>
                                 <div>
@@ -124,7 +121,7 @@
 
                     <aside>
                         <div class="card card--compact">
-                            <h4 class="section-title" style="margin:0 0 10px 0;">地図プレビュー</h4>
+                            <h4 class="section-title">地図プレビュー</h4>
                             <div class="map-preview">ミニマップ（クリックで拡大）</div>
 
                             <h4 class="section-title">提供可能な食材</h4>
@@ -164,7 +161,6 @@
             </div>
         </div>
     </footer>
-    <script src="../JS/information.js" defer></script>
+    <script src="../js/info.js" defer></script>
 </body>
-
 </html>
