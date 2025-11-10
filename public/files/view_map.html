@@ -5,10 +5,13 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>マップ - 食PULL</title>
     <link rel="stylesheet" href="../css/index.css">
-    <link rel="stylesheet" href="css/view_map.css">
+    <link rel="stylesheet" href="../css/map.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+
+     <!-- 先に map 初期化を定義するスクリプトを読み込み（defer） -->
+    <script src="../js/map.js" defer></script>
+    <!-- Google Maps API（callback=initMap を追加、YOUR_KEY は既に入っている場合そのまま可） -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwJ6Lhxfb9hnhAxFD484PEpxCC9wPV4dI&callback=initMap&language=ja"></script>
 </head>
 <body>
     <div class="app-container">
@@ -18,11 +21,7 @@
                     <img alt="食PULL Logo" class="logo-img" src="../image/食pull.png">
                     <h1 class="logo-title">食PULL</h1>
                 </div>
-                <nav class="nav-menu">
-                    <button class="nav-button">
-                        <span class="material-icons">menu</span>
-                    </button>
-                </nav>
+                <!-- ハンバーガーボタンとナビは不要のため削除 -->
             </div>
         </header>
 
@@ -93,6 +92,5 @@
         </main>
     </div>
 
-    <script src="js/view_map.js"></script>
 </body>
 </html>
