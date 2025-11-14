@@ -8,10 +8,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "firebase": "^10.7.0"
+    "firebase": "^10.7.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
     "vite": "^5.0.0"
   }
 }
-
