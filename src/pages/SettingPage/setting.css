@@ -1,17 +1,4 @@
 /* 設定画面のスタイル */
-:root {
-    --color-primary: #F87171;
-    --color-background-light: #F9FAFB;
-    --color-background-dark: #1F2937;
-    --color-card-light: #FFFFFF;
-    --color-card-dark: #374151;
-    --color-text-light: #111827;
-    --color-text-dark: #F3F4F6;
-    --color-text-secondary-light: #6B7280;
-    --color-text-secondary-dark: #9CA3AF;
-    --color-border: #E5E7EB;
-}
-
 .settings-header {
     display: flex;
     align-items: center;
