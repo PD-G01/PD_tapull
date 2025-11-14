@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom';
+import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
 import './matching.css';
 import '../../global.css';
 
 function MatchingPage() {
   return (
     <div className="container">
-      <header className="header">
-        <div className="logo-container">
-          <img alt="食PULL Logo" className="logo-img" src="/image/食pull.png" />
-          <h1 className="logo-title">食PULL</h1>
-        </div>
-        <p className="logo-subtitle">フードドライブマッチング機能への入り口</p>
-      </header>
+      <SiteHeader subtitle="フードドライブマッチング機能への入り口" />
 
       <section id="matching-entry">
         <h2 className="section-title">あなたはどちらのユーザーですか？</h2>
@@ -36,11 +32,7 @@ function MatchingPage() {
         </Link>
       </section>
 
-      <footer className="footer">
-        <div className="container footer-content">
-          <p>© 2024 食PULL. All Rights Reserved.</p>
-        </div>
-      </footer>
+      <SiteFooter links={[]} />
     </div>
   );
 }

@@ -32,10 +32,6 @@
     background-color: var(--color-card-dark);
 }
 
-.feature-card:hover {
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* hover:shadow-xl */
-}
-
 .feature-icon {
     font-size: 3rem; /* text-5xl */
     color: var(--color-primary);
@@ -53,59 +49,6 @@
 }
 .dark-mode .feature-description {
     color: var(--color-text-secondary-dark);
-}
-
-/* --- 画面イメージ (Screens) --- */
-#screens {
-    margin-bottom: 4rem; /* mb-16 */
-}
-
-.screen-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start; /* 画像の高さが違うため上揃え */
-    gap: 2rem; /* gap-8 */
-}
-
-.screen-item {
-    width: 100%;
-    max-width: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-@media (min-width: 640px) {
-    .screen-item {
-        width: calc(50% - 1rem); /* sm:w-1/2 */
-    }
-}
-@media (min-width: 768px) {
-    .screen-item {
-        width: calc(25% - 1.5rem); /* md:w-1/4 */
-    }
-}
-
-.screen-title {
-    font-size: 1.25rem; /* text-xl */
-    font-weight: 600;
-    margin-bottom: 1rem; /* mb-4 */
-    text-align: center;
-}
-
-.phone-frame {
-    background-color: #1F2937; /* bg-gray-800 */
-    padding: 0.5rem; /* p-2 */
-    border-radius: 0.75rem; /* rounded-xl */
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
-}
-
-.phone-screen {
-    border-radius: 0.5rem; /* rounded-lg */
-    width: 100%;
-    height: auto;
-    display: block;
 }
 
 /* --- マッチングの流れ (Flow) --- */

@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom';
+import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
 import '../../global.css';
 import './HomePage.css';
 
 function HomePage() {
   return (
     <div className="container">
-      <header className="header">
-        <div className="logo-container">
-          <img alt="食PULL Logo" className="logo-img" src="/image/食pull.png" />
-          <h1 className="logo-title">食PULL</h1>
-        </div>
-        <p className="logo-subtitle">フードドライブをもっと身近に、もっと簡単に。</p>
-      </header>
+      <SiteHeader />
 
       <section id="features">
         <h2 className="section-title">主な機能</h2>
@@ -35,30 +31,6 @@ function HomePage() {
             <span className="material-icons feature-icon">settings</span>
             <h3 className="feature-title">設定画面</h3>
             <p className="feature-description">通知やプロフィールなど、アプリの利用設定を自分好みにカスタマイズできます。</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="screens">
-        <h2 className="section-title">アプリ画面イメージ</h2>
-        <div className="screen-container">
-          <div className="screen-item">
-            <h3 className="screen-title">マップ画面</h3>
-            <div className="phone-frame">
-              <img alt="Map screen showing food drive locations" className="phone-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvSCKHNTmqUGQJtaHbzw83Dz7T335vTNPdnwdhqKBa6qXdasMnhJtXtjk10UzW428xa1nkjZf6bWDm7aBfZTIDmwSDZhm46o1Crj7P8tRIFwY1x2qeGiyyQtg4oqfbxtwYJwhZt-YeL6u98UcFJhOUPVKSuXxv8UaUQVxnOqfAvLFGIRkqjPqPoa4KyYYvBwwQjFRHzqOfHZkLxYOrRqU2uP_yGQHRxqbDXJNa2HHwmNxvXfXblv1nxXBUpMUcDD3X2cpV1x1UCxEW" />
-            </div>
-          </div>
-          <div className="screen-item">
-            <h3 className="screen-title">場所詳細ポップアップ</h3>
-            <div className="phone-frame">
-              <img alt="Map screen with a location detail popup" className="phone-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmdBXxnSRwSlFQ1rziUZz8wnu-mdkhbp6xLmjsQaBpY0ogenBfdkh3gMpbZglR8st4mFs9zJ_NZh-ECTJGdYQ8iiGqAmtBLFV4R-2xPVAEXZCN-Oo7Lya14YkM0-EiOzgZIHKHPslz7Nrhl5Kd1DXDmt-VyfvDmZ5tKO9jV3mWZOJGQJGqkCHwlxNZKbQ983utYI8DG5_yh-69LCaC_ZSx-aPfgna6RqG5zkSYky-O7Ny5GYTZL-S3FSRicNInk3_Trrly61HVILTK" />
-            </div>
-          </div>
-          <div className="screen-item">
-            <h3 className="screen-title">詳細・連絡画面</h3>
-            <div className="phone-frame">
-              <img alt="User detail and messaging screen" className="phone-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-atGAXJjEoqbtcfNcSrvrOlK8pHcdlRExyzwREK4rdmlnUIMcFRRw7D0II6baJuRbd2nlNGVrmrq9D9arE7oMteMjC-ErP4SrwtA7IBcjL1WRNbE10pWzxJPHBP2JfbC_o6WzeTAyhp0Xz-jQloatw-qAFG5RzXmMlZAUIqDxZDjsMARu4c2IqCjB8xeAkwxeCXB8Ti-HYVW0VANPu0DOgJ1JBZcrtY3JjFwBLYmhrTHeyF9FWwU-3DnDJueyhxl4v6AUEi2AZ4vN" />
-            </div>
           </div>
         </div>
       </section>
@@ -91,16 +63,7 @@ function HomePage() {
         </div>
       </section>
 
-      <footer className="footer">
-        <div className="container footer-content">
-          <p>© 2024 食PULL. All Rights Reserved.</p>
-          <div className="footer-links">
-            <a className="footer-link">プライバシーポリシー</a>
-            <a className="footer-link">利用規約</a>
-            <a className="footer-link">お問い合わせ</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

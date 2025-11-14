@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
 import './login.css';
 import '../../global.css';
 import { auth } from '../../utils/firebase';
@@ -28,13 +30,7 @@ function LoginPage() {
 
   return (
     <div className="container login-container">
-      <header className="header">
-        <div className="logo-container">
-          <img src="/image/tapull.png" alt="食PULL ロゴ" className="logo-img" />
-          <h1 className="logo-title">食PULL</h1>
-        </div>
-        <p className="logo-subtitle">フードドライブをもっと身近に。</p>
-      </header>
+      <SiteHeader subtitle="フードドライブをもっと身近に。" logoSrc="/image/tapull.png" />
 
       <main className="login-card" role="main" aria-labelledby="login-title">
         <h2 id="login-title" className="section-title">ログイン</h2>
@@ -103,11 +99,7 @@ function LoginPage() {
         </form>
       </main>
 
-      <footer className="footer" aria-hidden="true">
-        <div className="footer-content">
-          <p></p>
-        </div>
-      </footer>
+      <SiteFooter links={[]} ariaHidden={true} />
     </div>
   );
 }

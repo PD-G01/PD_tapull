@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import SiteHeader from '../../components/SiteHeader';
 import '../../global.css';
 import './view_map.css';
 
@@ -41,14 +42,7 @@ function ViewMapPage() {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <div className="header-content">
-          <div className="logo-container">
-            <img alt="食PULL Logo" className="logo-img" src="/image/食pull.png" />
-            <h1 className="logo-title">食PULL</h1>
-          </div>
-        </div>
-      </header>
+      <SiteHeader subtitle={null} />
 
       <main className="map-container">
         <div id="map" ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
