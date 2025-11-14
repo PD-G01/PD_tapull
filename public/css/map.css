@@ -1,0 +1,70 @@
+/* map 表示に必要な最低限のスタイル */
+.map-container {
+    height: calc(100vh - 64px); /* ヘッダーの高さに合わせて調整 */
+    position: relative;
+}
+#map {
+    height: 100%;
+    width: 100%;
+    min-height: 200px;
+}
+
+/* Control panel を左上に固定（モバイルでは幅いっぱい、広い画面では中央横並び） */
+.control-panel {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+    width: calc(100% - 32px);
+    max-width: 420px;
+    pointer-events: none; /* 親でクリックを無効化して余白操作を妨げない */
+}
+
+/* 子要素は操作可能にする */
+.control-panel > * {
+    pointer-events: auto;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* 検索バー調整 */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+}
+.search-bar input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    background: transparent;
+}
+
+/* フィルタの見た目 */
+.filter-panel { display: flex; }
+.filter-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+/* 広い画面では中央上に横並びで表示 */
+@media (min-width: 980px) {
+    .control-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: none;
+        flex-direction: row;
+        top: 16px;
+    }
+}
