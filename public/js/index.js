@@ -1,6 +1,12 @@
 // index.html用のJavaScriptファイル
-// Firebaseを使う場合は firebase.js からインポートしてください
-// import { auth, db } from './firebase.js';
+import { auth } from './firebase.js';
+import { onAuthStateChanged } from 'firebase/auth';
 
-// 初期表示をsignup.htmlにリダイレクト
-window.location.href = './files/signup.html';
+// 認証状態をチェックして、未ログインの場合はsignup.htmlにリダイレクト
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // ログイン情報が保存されていない場合、signup.htmlにリダイレクト
+        window.location.href = './files/signup.html';
+    }
+    // ログイン済みの場合は、そのままindex.html（ランディングページ）を表示
+});
