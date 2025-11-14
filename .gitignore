@@ -13,6 +13,8 @@ firebase-debug.*.log
 # Env
 .env
 .env.local
+.env.*
+!/.env.example
 .npmrc
 
 # Logs
