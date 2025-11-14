@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  root: 'public',
+  plugins: [react()],
+  root: 'src',
+  envDir: '..', // .envファイルの場所をプロジェクトルートに指定
+  publicDir: '../public',
   build: {
     outDir: '../dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    assetsDir: 'assets'
   },
   server: {
     port: 3000,
-    open: '/files/signup.html'
+    open: '/'
   }
 });
 

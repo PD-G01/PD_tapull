@@ -1,7 +1,7 @@
 /* 共通スタイル・CSS変数を取り込む */
-@import url('./index.css');
+@import url('../../global.css');
 
-/* ヘッダーは index.css の .header/.logo-* を使用 */
+/* ヘッダーは global.css の .header/.logo-* を使用 */
 
 .matching-selection {
     display: flex;

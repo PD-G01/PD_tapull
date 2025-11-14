@@ -1,0 +1,132 @@
+@charset "UTF-8";
+
+/* --- 基本的なリセット --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* --- 変数定義 --- */
+:root {
+    --color-primary: #F87171; /* 赤系 */
+    --color-background-light: #F9FAFB;
+    --color-background-dark: #1F2937;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #374151;
+    --color-text-light: #111827;
+    --color-text-dark: #F3F4F6;
+    --color-text-secondary-light: #6B7280;
+    --color-text-secondary-dark: #9CA3AF;
+}
+
+/* --- 基本設定とダークモード --- */
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: var(--color-background-light);
+    color: var(--color-text-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+body.dark-mode {
+    background-color: var(--color-background-dark);
+    color: var(--color-text-dark);
+}
+
+.container {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1rem; /* py-8 px-4 */
+}
+
+/* --- ヘッダー --- */
+.header {
+    text-align: center;
+    margin-bottom: 3rem; /* mb-12 */
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.logo-img {
+    height: 4rem; /* h-16 */
+    width: 4rem; /* w-16 */
+    border-radius: 50%;
+}
+
+.logo-title {
+    font-size: 2.25rem; /* text-4xl */
+    line-height: 2.5rem;
+    font-weight: 700; /* font-bold */
+    color: var(--color-primary);
+}
+@media (min-width: 768px) {
+    .logo-title {
+        font-size: 3rem; /* md:text-5xl */
+        line-height: 1;
+    }
+}
+
+.logo-subtitle {
+    font-size: 1.125rem; /* text-lg */
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .logo-subtitle {
+    color: var(--color-text-secondary-dark);
+}
+
+/* --- セクションタイトル --- */
+.section-title {
+    font-size: 1.875rem; /* text-3xl */
+    line-height: 2.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem; /* mb-8 */
+}
+
+/* --- フッター --- */
+.footer {
+    background-color: #E5E7EB; /* bg-gray-200 */
+    margin-top: 4rem; /* mt-16 */
+    padding: 1.5rem 0; /* py-6 */
+}
+.dark-mode .footer {
+    background-color: #1F2937; /* dark:bg-gray-800 */
+}
+
+.footer-content {
+    text-align: center;
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .footer-content {
+    color: var(--color-text-secondary-dark);
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* gap-4 */
+    margin-top: 0.5rem; /* mt-2 */
+}
+
+.footer-link {
+    transition: color 300ms;
+}
+
+.footer-link:hover {
+    color: var(--color-primary);
+}
+
