@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import '../css/matching.css';
-import '../css/index.css';
+import './matching.css';
+import '../../global.css';
 
 function MatchingPage() {
   return (

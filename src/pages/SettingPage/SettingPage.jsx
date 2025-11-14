@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../css/setting.css';
-import '../css/index.css';
-import { auth } from '../utils/firebase';
+import './setting.css';
+import '../../global.css';
+import { auth } from '../../utils/firebase';
 import { signOut } from 'firebase/auth';
 
 function SettingPage() {

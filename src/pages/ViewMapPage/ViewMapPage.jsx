@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import '../css/index.css';
-import '../css/view_map.css';
+import '../../global.css';
+import './view_map.css';
 
 function ViewMapPage() {
   const mapRef = useRef(null);

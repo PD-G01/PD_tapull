@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../css/signup.css';
-import '../css/index.css';
-import { auth } from '../utils/firebase';
+import './signup.css';
+import '../../global.css';
+import { auth } from '../../utils/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 function SignupPage() {

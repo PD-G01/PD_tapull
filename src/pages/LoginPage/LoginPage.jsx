@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../css/login.css';
-import '../css/index.css';
-import { auth } from '../utils/firebase';
+import './login.css';
+import '../../global.css';
+import { auth } from '../../utils/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 function LoginPage() {

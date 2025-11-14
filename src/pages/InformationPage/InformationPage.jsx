@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../css/information.css';
-import '../css/index.css';
+import './information.css';
+import '../../global.css';
 
 function InformationPage() {
   const [reportText, setReportText] = useState('');
