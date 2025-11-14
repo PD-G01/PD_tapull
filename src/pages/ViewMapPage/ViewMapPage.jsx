@@ -14,7 +14,7 @@ function ViewMapPage() {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDwJ6Lhxfb9hnhAxFD484PEpxCC9wPV4dI&callback=initMap&language=ja`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap&language=ja`;
       script.async = true;
       script.defer = true;
       window.initMap = initMap;
@@ -52,13 +52,13 @@ function ViewMapPage() {
 
       <main className="map-container">
         <div id="map" ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
-        
+
         <div className="control-panel">
           <div className="search-bar">
             <span className="material-icons">search</span>
             <input type="text" placeholder="場所を検索" />
           </div>
-          
+
           <div className="filter-panel">
             <button className="filter-button">
               <span className="material-icons">filter_list</span>
