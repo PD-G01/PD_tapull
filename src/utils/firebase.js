@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Firebase設定を環境変数から読み込む
 const firebaseConfig = {
@@ -47,8 +48,9 @@ try {
 }
 
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app, 'pdtapull-db'); // カスタムデータベース名を指定
+const storage = getStorage(app);
 
 // Export for use in other files
-export { app, auth, db, analytics };
+export { app, auth, db, storage, analytics };
 

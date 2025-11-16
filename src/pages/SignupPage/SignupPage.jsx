@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 import '../../global.css';
-import { auth } from '../../utils/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db, storage } from '../../utils/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -12,25 +14,95 @@ function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    accountType: 'personal',
+    accountType: true, // true = 食料を募集する, false = 食料を探す
     avatar: null
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
+  // 画像をリサイズする関数
+  const resizeImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // アスペクト比を保ちながらリサイズ
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                resolve(file); // リサイズ失敗時は元のファイルを返す
+              }
+            },
+            file.type,
+            quality
+          );
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
     if (name === 'avatar' && files && files[0]) {
       const file = files[0];
-      if (file.type.startsWith('image/')) {
+      
+      // ファイルタイプの検証
+      if (!file.type.startsWith('image/')) {
+        setErrors({ ...errors, avatar: '画像ファイルを選択してください' });
+        return;
+      }
+
+      // ファイルサイズの検証（10MB以下）
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setErrors({ ...errors, avatar: '画像サイズは10MB以下にしてください' });
+        return;
+      }
+
+      try {
+        // 画像をリサイズ（最大800x800px）
+        const resizedFile = await resizeImage(file);
+        const resizedBlob = new File([resizedFile], file.name, { type: file.type });
+
+        // プレビュー用に読み込み
         const reader = new FileReader();
         reader.onload = (e) => setAvatarPreview(e.target.result);
-        reader.readAsDataURL(file);
-        setFormData({ ...formData, avatar: file });
-      } else {
-        setErrors({ ...errors, avatar: '画像ファイルを選択してください' });
+        reader.readAsDataURL(resizedBlob);
+
+        setFormData({ ...formData, avatar: resizedBlob });
+        setErrors({ ...errors, avatar: '' });
+      } catch (error) {
+        console.error('画像処理エラー:', error);
+        setErrors({ ...errors, avatar: '画像の処理に失敗しました' });
       }
     } else {
       setFormData({ ...formData, [name]: value });
@@ -68,12 +140,33 @@ function SignupPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Firebaseエラーメッセージを日本語に変換
+  const getErrorMessage = (error) => {
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        return 'このメールアドレスは既に使用されています。';
+      case 'auth/invalid-email':
+        return '無効なメールアドレスです。';
+      case 'auth/operation-not-allowed':
+        return 'この操作は許可されていません。';
+      case 'auth/weak-password':
+        return 'パスワードが弱すぎます。8文字以上で入力してください。';
+      case 'auth/network-request-failed':
+        return 'ネットワークエラーが発生しました。接続を確認してください。';
+      default:
+        return 'アカウントの作成に失敗しました。もう一度お試しください。';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
+
+    setIsLoading(true);
+    setErrors({});
 
     try {
       // Firebase Authenticationでアカウント作成
@@ -82,21 +175,100 @@ function SignupPage() {
         formData.email,
         formData.password
       );
+
+      const user = userCredential.user;
+      let avatarURL = null;
+
+      // アバター画像をアップロード（選択されている場合）
+      // タイムアウトを設定して、長時間かかる場合はスキップ
+      if (formData.avatar) {
+        try {
+          const uploadPromise = (async () => {
+            const avatarRef = ref(storage, `avatars/${user.uid}/${formData.avatar.name}`);
+            await uploadBytes(avatarRef, formData.avatar);
+            return await getDownloadURL(avatarRef);
+          })();
+
+          // 10秒でタイムアウト
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('画像アップロードがタイムアウトしました')), 10000)
+          );
+
+          avatarURL = await Promise.race([uploadPromise, timeoutPromise]);
+          
+          // ユーザープロフィールにアバターURLを設定
+          await updateProfile(user, {
+            photoURL: avatarURL,
+            displayName: formData.name
+          });
+        } catch (storageError) {
+          console.warn('画像アップロードエラー（続行します）:', storageError);
+          // 画像アップロードに失敗してもユーザー登録は続行
+          // 表示名だけ設定
+          try {
+            await updateProfile(user, {
+              displayName: formData.name
+            });
+          } catch (profileError) {
+            console.warn('プロフィール更新エラー（続行します）:', profileError);
+          }
+        }
+      } else {
+        // アバターが選択されていない場合でも表示名を設定
+        try {
+          await updateProfile(user, {
+            displayName: formData.name
+          });
+        } catch (profileError) {
+          console.warn('プロフィール更新エラー（続行します）:', profileError);
+        }
+      }
       
-      // ユーザーデータを保存（Firestoreに保存する場合はここで実装）
+      // Firestoreにユーザー情報を保存（Firestoreのフィールド構造に合わせる）
       const userData = {
-        name: formData.name,
-        email: formData.email,
-        accountType: formData.accountType,
-        createdAt: new Date().toISOString(),
-        uid: userCredential.user.uid
+        'user-name': formData.name,
+        'mail-address': formData.email,
+        'account-type': formData.accountType, // true = 食料を募集する, false = 食料を探す
+        'image': avatarURL || '',
+        'id': user.uid,
+        'password': '' // パスワードはFirebase Authで管理するため空文字列
       };
+
+      try {
+        console.log('Firestore保存開始:', {
+          collection: 'user',
+          uid: user.uid,
+          data: userData,
+          db: db ? '初期化済み' : '未初期化'
+        });
+        await setDoc(doc(db, 'user', user.uid), userData);
+        console.log('Firestoreへの保存成功:', user.uid);
+      } catch (firestoreError) {
+        console.error('Firestore保存エラー:', firestoreError);
+        console.error('エラー詳細:', {
+          code: firestoreError.code,
+          message: firestoreError.message,
+          uid: user.uid,
+          data: userData
+        });
+        // Firestore保存に失敗しても、ユーザーには通知
+        setErrors({ submit: 'ユーザー情報の保存に失敗しました。管理者にお問い合わせください。' });
+        setIsLoading(false);
+        return; // ここで処理を中断
+      }
       
       // 成功時の処理
       navigate('/');
     } catch (error) {
       console.error('登録エラー:', error);
-      setErrors({ submit: 'アカウントの作成に失敗しました。もう一度お試しください。' });
+      console.error('エラー詳細:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      setErrors({ submit: getErrorMessage(error) });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -216,21 +388,21 @@ function SignupPage() {
                   <input
                     type="radio"
                     name="accountType"
-                    value="personal"
-                    checked={formData.accountType === 'personal'}
-                    onChange={handleChange}
+                    value="true"
+                    checked={formData.accountType === true}
+                    onChange={() => setFormData({ ...formData, accountType: true })}
                   />
-                  <span>個人</span>
+                  <span>食料を募集する</span>
                 </label>
                 <label className="type-option">
                   <input
                     type="radio"
                     name="accountType"
-                    value="organization"
-                    checked={formData.accountType === 'organization'}
-                    onChange={handleChange}
+                    value="false"
+                    checked={formData.accountType === false}
+                    onChange={() => setFormData({ ...formData, accountType: false })}
                   />
-                  <span>団体</span>
+                  <span>食料を探す</span>
                 </label>
               </div>
             </div>
@@ -245,10 +417,14 @@ function SignupPage() {
               </label>
             </div>
 
-            {errors.submit && <div className="error-text">{errors.submit}</div>}
+            {errors.submit && <div className="error-text" style={{ marginBottom: '1rem' }}>{errors.submit}</div>}
 
-            <button type="submit" className="submit-button">
-              アカウントを作成
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? '作成中...' : 'アカウントを作成'}
             </button>
 
             <p className="login-text">
