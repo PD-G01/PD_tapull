@@ -24,8 +24,9 @@ function ViewMapPage() {
     const initMap = () => {
       if (mapRef.current && window.google) {
         new window.google.maps.Map(mapRef.current, {
-          center: { lat: 35.6812, lng: 139.7671 }, // 東京駅
-          zoom: 13
+          // 金沢工業大学 扇が丘キャンパスの座標
+          center: { lat: 36.52836, lng: 136.62714 },
+          zoom: 15 // 大学周辺を詳細に表示するため、ズームレベルを調整
         });
       }
     };
