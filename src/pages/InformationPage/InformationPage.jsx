@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
 import './information.css';
 import '../../global.css';
 
@@ -47,13 +49,7 @@ function InformationPage() {
 
   return (
     <div className="container">
-      <header className="header">
-        <div className="logo-container">
-          <img alt="食PULL Logo" className="logo-img" src="/image/食pull.png" />
-          <h1 className="logo-title">食PULL</h1>
-        </div>
-        <p className="logo-subtitle">フードドライブをもっと身近に、もっと簡単に。</p>
-      </header>
+      <SiteHeader />
 
       <main className="detail-container">
         <div className="card">
@@ -215,16 +211,7 @@ function InformationPage() {
         </div>
       </main>
 
-      <footer className="footer">
-        <div className="container footer-content">
-          <p>© 2025 食PULL. All Rights Reserved.</p>
-          <div className="footer-links">
-            <a className="footer-link">プライバシーポリシー</a>
-            <a className="footer-link">利用規約</a>
-            <a className="footer-link">お問い合わせ</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter year={2025} />
     </div>
   );
 }
