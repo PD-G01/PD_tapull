@@ -6,6 +6,8 @@ import MatchingPage from './pages/MatchingPage/MatchingPage';
 import ViewMapPage from './pages/ViewMapPage/ViewMapPage';
 import InformationPage from './pages/InformationPage/InformationPage';
 import SettingPage from './pages/SettingPage/SettingPage';
+import ContributorMatchPage from './pages/ContributorMatchPage/ContributorMatchPage';
+import RecipientMatchPage from './pages/RecipientMatchPage/RecipientMatchPage';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/map" element={<ViewMapPage />} />
         <Route path="/information" element={<InformationPage />} />
         <Route path="/setting" element={<SettingPage />} />
+        <Route path="/contributor-match" element={<ContributorMatchPage />} />
+        <Route path="/recipient-match" element={<RecipientMatchPage />} />
       </Routes>
     </Router>
   );

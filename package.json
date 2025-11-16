@@ -8,7 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "firebase": "^10.7.0",
+    "axios": "^1.13.2",
+    "firebase": "^10.14.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6"
