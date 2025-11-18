@@ -1,0 +1,61 @@
+/* ChatWindow.css （外部CSSファイル） */
+
+.chat-container {
+    height: 400px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-list {
+    flex-grow: 1; /* flexGrow -> flex-grow */
+    overflow-y: auto; /* overflowY -> overflow-y */
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+/* baseMessageStyle に対応する基本スタイル */
+.base-message {
+    padding: 8px;
+    border-radius: 10px;
+    margin-bottom: 8px; /* marginBottom -> margin-bottom */
+    max-width: 70%; /* maxWidth -> max-width */
+}
+
+/* myMessageStyle に対応。HTML側で .base-message と .my-message を両方適用する */
+.my-message {
+    align-self: flex-end; /* alignSelf -> align-self */
+    background-color: #dcf8c6;
+    margin-left: auto; /* marginLeft -> margin-left */
+}
+
+/* otherMessageStyle に対応 */
+.other-message {
+    align-self: flex-start;
+    background-color: #fff;
+    margin-right: auto; /* marginRight -> margin-right */
+    border: 1px solid #eee;
+}
+
+.input-form {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd; /* borderTop -> border-top */
+}
+
+.input-field {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.send-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

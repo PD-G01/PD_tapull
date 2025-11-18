@@ -1,36 +1,52 @@
 // ChatWindow.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { db } from '../../utils/firebase';
-import firebase from 'firebase/compat/app';
+import { db, auth } from '../../utils/firebase';
 
-// 💡 このコンポーネントは、親コンポーネントから matchId を受け取る必要がある
-function ChatWindow({ matchId, currentUserId }) { 
+// ▼ 1. スタイル定義を削除し、CSSファイルをインポート
+import './ChatWindow.css';
+
+// ▼ 2. v9 (Modular) の関数をインポート（前々回の修正を適用）
+import {
+    collection,
+    query,
+    where,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    serverTimestamp
+} from 'firebase/firestore';
+
+
+function ChatWindow({ matchId, currentUserId }) {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef(null);
 
-    // 💡 1. リアルタイムでのメッセージ取得
+    // 💡 1. リアルタイムでのメッセージ取得（v9形式）
     useEffect(() => {
         if (!matchId) return;
 
-        // matchId が一致するメッセージを sent_at でソートして取得
-        const unsubscribe = db.collection("messages")
-            .where("match_id", "==", matchId)
-            .orderBy("sent_at", "asc")
-            .onSnapshot(snapshot => {
-                const fetchedMessages = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setMessages(fetchedMessages);
-                setLoading(false);
-            }, (error) => {
-                console.error("チャットメッセージ取得エラー:", error);
-                setLoading(false);
-            });
+        const messagesRef = collection(db, "messages");
+        const q = query(
+            messagesRef,
+            where("match_id", "==", matchId),
+            orderBy("sent_at", "asc")
+        );
 
-        return () => unsubscribe(); // クリーンアップ
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const fetchedMessages = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setMessages(fetchedMessages);
+            setLoading(false);
+        }, (error) => {
+            console.error("チャットメッセージ取得エラー:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
     }, [matchId]);
 
     // メッセージが追加されたら一番下までスクロール
@@ -41,17 +57,18 @@ function ChatWindow({ matchId, currentUserId }) {
     }, [messages]);
 
 
-    // 💡 2. メッセージ送信処理
+    // 💡 2. メッセージ送信処理（v9形式）
     const handleSend = async (e) => {
         e.preventDefault();
         if (newMessage.trim() === '' || !matchId || !currentUserId) return;
 
         try {
-            await db.collection("messages").add({
+            const messagesRef = collection(db, "messages");
+            await addDoc(messagesRef, {
                 match_id: matchId,
                 sender_id: currentUserId,
                 text: newMessage,
-                sent_at: firebase.firestore.FieldValue.serverTimestamp(),
+                sent_at: serverTimestamp(),
             });
             setNewMessage('');
         } catch (error) {
@@ -65,15 +82,18 @@ function ChatWindow({ matchId, currentUserId }) {
 
 
     return (
-        <div style={chatContainerStyle}>
-            <div style={messagesListStyle}>
+        // ▼ 3. スタイルオブジェクトをクラス名に置き換え
+        <div className="chat-container">
+            <div className="messages-list">
                 {messages.map((msg) => (
-                    <div 
-                        key={msg.id} 
-                        style={msg.sender_id === currentUserId ? myMessageStyle : otherMessageStyle}
+                    <div
+                        key={msg.id}
+                        // ▼ base-messageを常に適用し、条件に応じてmy-message/other-messageを追加
+                        className={`base-message ${msg.sender_id === currentUserId ? 'my-message' : 'other-message'
+                            }`}
                     >
                         <strong>{msg.sender_id === currentUserId ? 'あなた' : '相手'}:</strong> {msg.text}
-                        <small style={{display: 'block', fontSize: '10px', color: '#666'}}>
+                        <small style={{ display: 'block', fontSize: '10px', color: '#666' }}>
                             {msg.sent_at ? new Date(msg.sent_at.toDate()).toLocaleTimeString('ja-JP') : '送信中...'}
                         </small>
                     </div>
@@ -81,16 +101,16 @@ function ChatWindow({ matchId, currentUserId }) {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* 3. メッセージ入力フォーム */}
-            <form onSubmit={handleSend} style={inputFormStyle}>
+            {/* ▼ フォームもクラス名で置き換え */}
+            <form onSubmit={handleSend} className="input-form">
                 <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="メッセージを入力..."
-                    style={inputFieldStyle}
+                    className="input-field"
                 />
-                <button type="submit" disabled={newMessage.trim() === ''} style={sendButtonStyle}>
+                <button type="submit" disabled={newMessage.trim() === ''} className="send-button">
                     送信
                 </button>
             </form>
@@ -98,15 +118,6 @@ function ChatWindow({ matchId, currentUserId }) {
     );
 }
 
-// 簡単なスタイル定義
-const chatContainerStyle = { height: '400px', border: '1px solid #ddd', display: 'flex', flexDirection: 'column' };
-const messagesListStyle = { flexGrow: 1, overflowY: 'auto', padding: '10px', backgroundColor: '#f9f9f9' };
-const baseMessageStyle = { padding: '8px', borderRadius: '10px', marginBottom: '8px', maxWidth: '70%' };
-const myMessageStyle = { ...baseMessageStyle, alignSelf: 'flex-end', backgroundColor: '#dcf8c6', marginLeft: 'auto' };
-const otherMessageStyle = { ...baseMessageStyle, alignSelf: 'flex-start', backgroundColor: '#fff', marginRight: 'auto', border: '1px solid #eee' };
-const inputFormStyle = { display: 'flex', padding: '10px', borderTop: '1px solid #ddd' };
-const inputFieldStyle = { flexGrow: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '5px', marginRight: '10px' };
-const sendButtonStyle = { padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
-
+// ▼ 4. コンポーネント末尾にあったスタイル定義は全て削除済み
 
 export default ChatWindow;
