@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 import '../../global.css';
 import { auth, db, storage } from '../../utils/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, deleteUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -81,10 +81,10 @@ function SignupPage() {
         return;
       }
 
-      // ファイルサイズの検証（10MB以下）
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      // ファイルサイズの検証（5MB以下）
+      const maxSize = 5 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
-        setErrors({ ...errors, avatar: '画像サイズは10MB以下にしてください' });
+        setErrors({ ...errors, avatar: '画像サイズは5MB以下にしてください' });
         return;
       }
 
@@ -195,33 +195,19 @@ function SignupPage() {
           );
 
           avatarURL = await Promise.race([uploadPromise, timeoutPromise]);
-          
-          // ユーザープロフィールにアバターURLを設定
-          await updateProfile(user, {
-            photoURL: avatarURL,
-            displayName: formData.name
-          });
         } catch (storageError) {
           console.warn('画像アップロードエラー（続行します）:', storageError);
-          // 画像アップロードに失敗してもユーザー登録は続行
-          // 表示名だけ設定
-          try {
-            await updateProfile(user, {
-              displayName: formData.name
-            });
-          } catch (profileError) {
-            console.warn('プロフィール更新エラー（続行します）:', profileError);
-          }
+          // 画像アップロードに失敗しても、avatarURLはnullのまま続行します
         }
-      } else {
-        // アバターが選択されていない場合でも表示名を設定
-        try {
-          await updateProfile(user, {
-            displayName: formData.name
-          });
-        } catch (profileError) {
-          console.warn('プロフィール更新エラー（続行します）:', profileError);
-        }
+      }
+      // プロフィール更新（表示名と、あればアバターURL）を一度に行う
+      try {
+        await updateProfile(user, {
+          displayName: formData.name,
+          photoURL: avatarURL, // avatarURLがnullでも問題ありません
+        });
+      } catch (profileError) {
+        console.warn('プロフィール更新エラー（続行します）:', profileError);
       }
       
       // Firestoreにユーザー情報を保存（Firestoreのフィールド構造に合わせる）
@@ -231,7 +217,6 @@ function SignupPage() {
         'account-type': formData.accountType, // true = 食料を募集する, false = 食料を探す
         'image': avatarURL || '',
         'id': user.uid,
-        'password': '' // パスワードはFirebase Authで管理するため空文字列
       };
 
       try {
@@ -251,8 +236,23 @@ function SignupPage() {
           uid: user.uid,
           data: userData
         });
-        // Firestore保存に失敗しても、ユーザーには通知
-        setErrors({ submit: 'ユーザー情報の保存に失敗しました。管理者にお問い合わせください。' });
+        
+        // Firestore保存に失敗した場合、作成されたユーザーを削除してロールバック
+        try {
+          console.log('ユーザーアカウントのロールバック開始:', user.uid);
+          await deleteUser(user);
+          console.log('ユーザーアカウントの削除成功:', user.uid);
+        } catch (deleteError) {
+          console.error('ユーザー削除エラー（ロールバック失敗）:', deleteError);
+          console.error('削除エラー詳細:', {
+            code: deleteError.code,
+            message: deleteError.message,
+            uid: user.uid
+          });
+          // 削除に失敗した場合でも、ユーザーにはエラーを通知
+        }
+        
+        setErrors({ submit: 'ユーザー情報の保存に失敗しました。もう一度お試しください。' });
         setIsLoading(false);
         return; // ここで処理を中断
       }
