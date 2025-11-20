@@ -392,7 +392,7 @@ function SignupPage() {
                     checked={formData.accountType === true}
                     onChange={() => setFormData({ ...formData, accountType: true })}
                   />
-                  <span>食料を募集する</span>
+                  <span>食料を探す</span>
                 </label>
                 <label className="type-option">
                   <input
@@ -402,7 +402,7 @@ function SignupPage() {
                     checked={formData.accountType === false}
                     onChange={() => setFormData({ ...formData, accountType: false })}
                   />
-                  <span>食料を探す</span>
+                  <span>食料を提供する</span>
                 </label>
               </div>
             </div>

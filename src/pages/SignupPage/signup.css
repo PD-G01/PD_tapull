@@ -139,7 +139,9 @@ body {
 /* アカウントタイプ切り替え */
 .account-type-toggle {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
 }
 
 .type-option {
@@ -222,4 +224,91 @@ body {
     margin-top: 1.5rem;
     font-size: 0.875rem;
     color: var(--color-gray-700);
+}
+
+/* --- レスポンシブ: スマートフォン --- */
+@media (max-width: 640px) {
+    .header {
+        padding: 0.75rem 1rem;
+    }
+
+    .header-container {
+        width: 100%;
+    }
+
+    .main-container {
+        margin: 1rem auto;
+        padding: 0;
+    }
+
+    .signup-card {
+        border-radius: 0;
+        box-shadow: none;
+        padding: 1.5rem 1.25rem;
+        min-height: calc(100vh - 140px);
+    }
+
+    .avatar-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .password-input input {
+        padding-right: 3rem;
+    }
+
+    .toggle-password {
+        right: 0.5rem;
+    }
+
+    .login-text {
+        margin-bottom: 2rem;
+    }
+}
+
+/* --- レスポンシブ: タブレット/デスクトップ --- */
+@media (min-width: 768px) {
+    .account-type-toggle {
+        flex-direction: row;
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .header-container {
+        max-width: 960px;
+    }
+
+    .main-container {
+        max-width: 960px;
+        margin: 3rem auto 4rem;
+    }
+
+    .signup-card {
+        padding: 3rem 4rem;
+    }
+
+    .signup-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 2rem;
+        row-gap: 1.25rem;
+    }
+
+    .signup-form .avatar-section,
+    .signup-form .checkbox-label,
+    .signup-form .submit-button,
+    .signup-form .login-text,
+    .signup-form .account-type-toggle,
+    .signup-form .error-text {
+        grid-column: span 2;
+    }
+
+    .login-text {
+        margin-top: 2rem;
+        font-size: 1rem;
+    }
 }
