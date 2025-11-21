@@ -12,12 +12,12 @@ function MatchingPage() {
       name: 'ひより',
       age: 23,
       role: '看護師',
-      organization: 'Tinder大学',
+      organization: '金沢工業大学',
       location: '新宿 在住',
       distance: '14km 以内',
       need: '子ども食堂向けの常温保存できる食材を探しています。',
       tags: ['子ども支援', '平日夕方受取可', '少量OK'],
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=720&q=80'
+      //avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=720&q=80'
     },
     {
       id: 'sora',
@@ -29,7 +29,7 @@ function MatchingPage() {
       distance: '8km 以内',
       need: 'お米や缶詰など長期保存が可能な食材を優先募集。',
       tags: ['大量歓迎', '土日受取', '車あり'],
-      avatar: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=720&q=80'
+      //avatar: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=720&q=80'
     },
     {
       id: 'haru',
@@ -41,7 +41,7 @@ function MatchingPage() {
       distance: '20km 以内',
       need: 'ベビーフードやアレルギー対応食品を探しています。',
       tags: ['乳児向け', '平日午前受取', '冷蔵可'],
-      avatar: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=720&q=80'
+      // avatar: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=720&q=80'
     }
   ];
 

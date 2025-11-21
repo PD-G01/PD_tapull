@@ -281,6 +281,39 @@
 }
 
 /* --- レスポンシブ --- */
+@media (max-width: 640px) {
+    /* スマホ表示時: ヘッダーとフッターを非表示 */
+    .container > .header,
+    .container > .footer,
+    .container > header,
+    .container > footer {
+        display: none !important;
+    }
+
+    /* スマホ表示時: コンテナのパディングを削除して全画面表示 */
+    .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .mobile-match-section {
+        margin-top: 0;
+    }
+
+    .match-card {
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .back-link {
+        display: none;
+    }
+}
+
 @media (min-width: 768px) {
     .match-card {
         max-width: 520px;
