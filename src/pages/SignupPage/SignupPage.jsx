@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 import '../../global.css';
+import '../TermsPage/terms.css';
+import '../PrivacyPage/privacy.css';
 import { auth, db, storage } from '../../utils/firebase';
 import { createUserWithEmailAndPassword, updateProfile, deleteUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { TermsContent } from '../TermsPage/TermsPage';
+import { PrivacyContent } from '../PrivacyPage/PrivacyPage';
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -14,7 +18,6 @@ function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    accountType: true, // true = 食料を募集する, false = 食料を探す
     avatar: null
   });
   const [errors, setErrors] = useState({});
@@ -22,6 +25,8 @@ function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(null); // 'terms' or 'privacy'
 
   // 画像をリサイズする関数
   const resizeImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
@@ -158,6 +163,16 @@ function SignupPage() {
     }
   };
 
+  const openModal = (type) => {
+    setModalContent(type);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalContent(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -214,7 +229,6 @@ function SignupPage() {
       const userData = {
         'user-name': formData.name,
         'mail-address': formData.email,
-        'account-type': formData.accountType, // true = 食料を募集する, false = 食料を探す
         'image': avatarURL || '',
         'id': user.uid,
       };
@@ -382,37 +396,11 @@ function SignupPage() {
             </div>
 
             <div className="form-group">
-              <label>アカウントタイプ</label>
-              <div className="account-type-toggle">
-                <label className="type-option">
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="true"
-                    checked={formData.accountType === true}
-                    onChange={() => setFormData({ ...formData, accountType: true })}
-                  />
-                  <span>食料を募集する</span>
-                </label>
-                <label className="type-option">
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="false"
-                    checked={formData.accountType === false}
-                    onChange={() => setFormData({ ...formData, accountType: false })}
-                  />
-                  <span>食料を探す</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="form-group">
               <label className="checkbox-label">
                 <input type="checkbox" required />
                 <span className="checkbox-text">
-                  <a href="#" className="link-text">利用規約</a>と
-                  <a href="#" className="link-text">プライバシーポリシー</a>に同意する
+                  <button type="button" className="link-text link-button" onClick={() => openModal('terms')}>利用規約</button>と
+                  <button type="button" className="link-text link-button" onClick={() => openModal('privacy')}>プライバシーポリシー</button>に同意する
                 </span>
               </label>
             </div>
@@ -433,6 +421,27 @@ function SignupPage() {
           </form>
         </div>
       </main>
+
+      {/* モーダル */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{modalContent === 'terms' ? '利用規約' : 'プライバシーポリシー'}</h2>
+              <button className="modal-close" onClick={closeModal}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              {modalContent === 'terms' ? (
+                <TermsContent />
+              ) : (
+                <PrivacyContent />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
