@@ -1,15 +1,17 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './privacy.css';
 import '../../global.css';
 
 function PrivacyPage() {
+  const navigate = useNavigate();
+
   return (
     <>
       <header className="header">
         <div className="header-container">
-          <Link to="/signup" className="back-link">
+          <button type="button" className="back-link" onClick={() => navigate(-1)}>
             <span className="material-icons">arrow_back</span>
-          </Link>
+          </button>
           <h1>プライバシーポリシー</h1>
         </div>
       </header>

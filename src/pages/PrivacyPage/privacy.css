@@ -34,6 +34,10 @@ body {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .back-link:hover {

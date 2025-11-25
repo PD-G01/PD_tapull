@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 import '../../global.css';
+import '../TermsPage/terms.css';
+import '../PrivacyPage/privacy.css';
 import { auth, db, storage } from '../../utils/firebase';
 import { createUserWithEmailAndPassword, updateProfile, deleteUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
