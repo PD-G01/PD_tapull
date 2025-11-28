@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 import '../../global.css';
@@ -13,6 +13,11 @@ import { PrivacyContent } from '../PrivacyPage/PrivacyPage';
 
 function SignupPage() {
   const navigate = useNavigate();
+  // このページでは画面全体のスクロールを無効化
+  useEffect(() => {
+    document.body.classList.add('no-scroll');
+    return () => document.body.classList.remove('no-scroll');
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -288,15 +293,6 @@ function SignupPage() {
 
   return (
     <>
-      <header className="header">
-        <div className="header-container">
-          <Link to="/" className="back-link">
-            <span className="material-icons">arrow_back</span>
-          </Link>
-          <h1>アカウント作成</h1>
-        </div>
-      </header>
-
       <main className="main-container">
         <div className="signup-card">
           <form id="signupForm" className="signup-form" onSubmit={handleSubmit}>
@@ -395,13 +391,11 @@ function SignupPage() {
               {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
             </div>
 
-            <div className="form-group">
-              <label className="checkbox-label">
-                <input type="checkbox" required />
-                <span className="checkbox-text">
-                  <button type="button" className="link-text link-button" onClick={() => openModal('terms')}>利用規約</button>と
-                  <button type="button" className="link-text link-button" onClick={() => openModal('privacy')}>プライバシーポリシー</button>に同意する
-                </span>
+            <div className="form-group checkbox-group">
+              <input type="checkbox" id="termsConsent" required />
+              <label htmlFor="termsConsent" className="checkbox-text">
+                <button type="button" className="link-text link-button" onClick={() => openModal('terms')}>利用規約</button>と
+                <button type="button" className="link-text link-button" onClick={() => openModal('privacy')}>プライバシーポリシー</button>に同意する
               </label>
             </div>
 

@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import SiteHeader from '../../components/SiteHeader';
-import SiteFooter from '../../components/SiteFooter';
 import './login.css';
 import '../../global.css';
 import { auth } from '../../utils/firebase';
@@ -26,6 +24,12 @@ function LoginPage() {
     return () => unsubscribe();
   }, [navigate]);
 
+  // このページでは画面全体のスクロールを無効化
+  useEffect(() => {
+    document.body.classList.add('no-scroll');
+    return () => document.body.classList.remove('no-scroll');
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -40,57 +44,55 @@ function LoginPage() {
   };
 
   return (
-    <div className="container login-container">
-      <SiteHeader subtitle="フードドライブをもっと身近に。" logoSrc="/image/tapull.png" />
+    <>
+      <main className="main-container">
+        <div className="login-card">
+          <form className="login-form" onSubmit={handleSubmit} autoComplete="on">
+            <h2 className="section-title">ログイン</h2>
 
-      <main className="login-card" role="main" aria-labelledby="login-title">
-        <h2 id="login-title" className="section-title">ログイン</h2>
-
-        <form className="login-form" onSubmit={handleSubmit} autoComplete="on">
-          {error && <div className="error-text" style={{ marginBottom: '1rem', color: 'red' }}>{error}</div>}
-          
-          <div className="form-group">
-            <label htmlFor="email">メールアドレス</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@mail.com"
-              required
-              autoComplete="email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">パスワード</label>
-            <div className="password-wrapper">
+            {error && <div className="error-text">{error}</div>}
+            
+            <div className="form-group">
+              <label htmlFor="email">メールアドレス</label>
               <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="例: example@mail.com"
                 required
-                autoComplete="current-password"
-                minLength="8"
+                autoComplete="email"
               />
-              <button
-                type="button"
-                className="pwd-toggle"
-                aria-label="パスワード表示切替"
-                title="パスワード表示切替"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                <span className="material-icons">{showPassword ? 'visibility_off' : 'visibility'}</span>
-              </button>
             </div>
-          </div>
 
-          <div className="form-row">
-            <label className="checkbox">
+            <div className="form-group">
+              <label htmlFor="password">パスワード</label>
+              <div className="password-input">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="8文字以上で入力してください"
+                  required
+                  autoComplete="current-password"
+                  minLength="8"
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  aria-label="パスワード表示切替"
+                  title="パスワード表示切替"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <span className="material-icons">{showPassword ? 'visibility' : 'visibility_off'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group checkbox-group">
               <input
                 type="checkbox"
                 id="remember"
@@ -98,20 +100,20 @@ function LoginPage() {
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
               />
-              <span>ログインを保持</span>
-            </label>
-          </div>
+              <label htmlFor="remember" className="checkbox-text">
+                ログインを保持
+              </label>
+            </div>
 
-          <button type="submit" className="login-button">ログイン</button>
+            <button type="submit" className="login-button">ログイン</button>
 
-          <p className="form-link">
-            初めての方は <Link to="/signup">新規登録</Link>
-          </p>
-        </form>
+            <p className="login-text">
+              初めての方は<Link to="/signup" className="link-text">新規登録</Link>
+            </p>
+          </form>
+        </div>
       </main>
-
-      <SiteFooter links={[]} ariaHidden={true} />
-    </div>
+    </>
   );
 }
 
