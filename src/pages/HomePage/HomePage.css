@@ -141,3 +141,67 @@
     }
 }
 
+/* --- レスポンシブ追加 --- */
+@media (max-width: 640px) {
+    #features {
+        margin-bottom: 2.5rem;
+    }
+
+    .feature-card {
+        padding: 1.25rem;
+    }
+
+    .feature-title {
+        font-size: 1.125rem;
+    }
+
+    .flow-section {
+        padding: 1.5rem;
+        border-radius: 0.25rem;
+        margin: 0 -0.5rem;
+    }
+
+    .flow-steps {
+        gap: 1.5rem;
+    }
+
+    .step-item {
+        max-width: none;
+        width: 100%;
+    }
+
+    .highlight-box {
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .feature-grid {
+        gap: 2.5rem;
+    }
+
+    .feature-card {
+        padding: 2rem;
+    }
+
+    .flow-section {
+        padding: 3rem;
+    }
+
+    .flow-steps {
+        gap: 3rem;
+    }
+
+    .step-item {
+        max-width: 220px;
+    }
+
+    .highlight-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+    }
+}
+

@@ -1,81 +1,337 @@
-/* 共通スタイル・CSS変数を取り込む */
-@import url('../../global.css');
-
-/* ヘッダーは global.css の .header/.logo-* を使用 */
-
-.matching-selection {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem; /* カード間の間隔 */
-    padding: 2rem 0;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .matching-selection {
-        flex-direction: row;
-        justify-content: center;
-        align-items: stretch; /* 高さ揃え */
-    }
-}
-
-.selection-card {
-    background-color: var(--color-card-light);
-    padding: 2.5rem 1.5rem; /* 上下左右のパディングを増やし目立たせる */
-    border-radius: 1rem; /* 角を丸く */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* 強めのシャドウ */
-    transition: transform 300ms, box-shadow 300ms, color 300ms, background-color 300ms;
-    cursor: pointer;
-    text-decoration: none; /* aタグの装飾を解除 */
-    color: var(--color-text-light); /* テキスト色は基本に */
-    flex: 1; /* flex itemとしての伸長 */
-    max-width: 400px;
-    margin: 0 auto; /* 中央揃え */
-}
-
-.dark-mode .selection-card {
-    background-color: var(--color-card-dark);
-    color: var(--color-text-dark);
-}
-
-.selection-card:hover {
-    transform: translateY(-5px); /* わずかに浮き上がらせる */
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-}
-
-.selection-icon {
-    font-size: 5rem; /* 大きなアイコン */
-    color: var(--color-primary);
-    margin-bottom: 1rem;
-}
-
-.selection-title {
-    font-size: 1.5rem; /* text-2xl */
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.selection-description {
-    font-size: 1rem;
+/* --- 共通 --- */
+.section-eyebrow {
+    font-size: 0.85rem;
     color: var(--color-text-secondary-light);
-}
-.dark-mode .selection-description {
-    color: var(--color-text-secondary-dark);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
 }
 
 .back-link {
-    display: block;
-    text-align: center;
-    margin-top: 3rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 2.5rem auto 3rem;
     color: var(--color-text-secondary-light);
     text-decoration: none;
-    transition: color 300ms;
+    transition: color 200ms;
 }
 .back-link:hover {
     color: var(--color-primary);
 }
-
-/* matching.html 内のインラインスタイル移管 */
 .back-link .material-icons {
+    font-size: 1.125rem;
+}
+
+/* --- モバイル: Tinder風カード --- */
+.mobile-match-section {
+    display: block;
+    margin-top: 1.5rem;
+}
+
+.match-card {
+    max-width: 420px;
+    margin: 0 auto;
+    background-color: var(--color-card-light);
+    border-radius: 30px;
+    padding: 1rem 1rem 2rem;
+    box-shadow: 0 20px 40px rgba(17, 24, 39, 0.15);
+}
+
+.match-card-image {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+}
+
+.match-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.match-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+}
+
+.match-card-basic {
+    color: #fff;
+}
+
+.match-name-line {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.match-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.match-age {
+    font-size: 1.4rem;
+}
+
+.verified-dot .material-icons {
+    font-size: 1.125rem;
+    color: #60A5FA;
     vertical-align: middle;
+}
+
+.match-role {
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    opacity: 0.85;
+}
+
+.match-org,
+.match-location,
+.match-distance {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+    opacity: 0.9;
+}
+
+.match-org .material-icons,
+.match-location .material-icons,
+.match-distance .material-icons {
+    font-size: 1rem;
+}
+
+.match-need {
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary-light);
+}
+
+.match-tags {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.match-tag {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--color-gray-100);
+    font-size: 0.8rem;
+}
+
+.match-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.match-action {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-gray-100);
+    color: #374151;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.match-action .material-icons {
+    font-size: 1.4rem;
+}
+
+.match-action.rewind { background-color: #FDE68A; }
+.match-action.dislike { background-color: #FECACA; }
+.match-action.info { background-color: #E5E7EB; }
+.match-action.like { background-color: #FCD34D; color: #DC2626; }
+.match-action.flash { background-color: #DDD6FE; color: #6D28D9; }
+
+/* --- デスクトップ: 一覧 --- */
+.desktop-match-section {
+    display: none;
+    margin-top: 3rem;
+}
+
+.desktop-match-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.desktop-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.desktop-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.desktop-profile-card {
+    background-color: var(--color-card-light);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.desktop-profile-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.desktop-profile-header img {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.desktop-profile-name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.desktop-profile-role {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary-light);
+}
+
+.desktop-profile-loc {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary-light);
+}
+
+.desktop-profile-loc .material-icons {
+    font-size: 1rem;
+}
+
+.desktop-profile-need {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+}
+
+.desktop-profile-tags {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.desktop-profile-tags span {
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--color-gray-100);
+    font-size: 0.8rem;
+}
+
+.desktop-profile-actions {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.outline-btn,
+.primary-btn {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.outline-btn {
+    border-color: var(--color-gray-300);
+    background-color: transparent;
+    color: var(--color-text-light);
+}
+
+.primary-btn {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+/* --- レスポンシブ --- */
+@media (max-width: 640px) {
+    /* スマホ表示時: ヘッダーとフッターを非表示 */
+    .container > .header,
+    .container > .footer,
+    .container > header,
+    .container > footer {
+        display: none !important;
+    }
+
+    /* スマホ表示時: コンテナのパディングを削除して全画面表示 */
+    .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .mobile-match-section {
+        margin-top: 0;
+    }
+
+    .match-card {
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .back-link {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .match-card {
+        max-width: 520px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-match-section {
+        display: none;
+    }
+
+    .desktop-match-section {
+        display: block;
+    }
+
+    .desktop-match-header {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
 }

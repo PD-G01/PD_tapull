@@ -153,3 +153,84 @@ body.dark-mode {
     color: var(--color-primary);
 }
 
+/* --- レスポンシブ設定 --- */
+@media (max-width: 640px) {
+    body {
+        font-size: 0.95rem;
+        background-color: var(--color-background);
+    }
+
+    .container {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .header {
+        margin-bottom: 1.5rem;
+        padding: 1.25rem 0 0.5rem;
+    }
+
+    .logo-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .logo-title {
+        font-size: 1.75rem;
+    }
+
+    .logo-subtitle {
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .footer {
+        margin-top: 2rem;
+        padding: 1rem 0;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        font-size: 1.05rem;
+    }
+
+    .container {
+        padding: 3rem 2rem;
+    }
+
+    .header {
+        margin-bottom: 4rem;
+    }
+
+    .logo-container {
+        gap: 1.5rem;
+    }
+
+    .logo-title {
+        font-size: 3.25rem;
+        line-height: 1.1;
+    }
+
+    .logo-subtitle {
+        font-size: 1.25rem;
+    }
+
+    .footer-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .footer-links {
+        justify-content: flex-end;
+        margin-top: 0;
+    }
+}
+
