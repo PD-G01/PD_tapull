@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import SiteHeader from '../../components/SiteHeader';
 import SiteFooter from '../../components/SiteFooter';
 import './login.css';
 import '../../global.css';
 import { auth } from '../../utils/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -15,13 +15,24 @@ function LoginPage() {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
 
+  // 認証状態をチェックして、ログイン済みの場合はMatchingPageにリダイレクト
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate('/matching');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate('/matching');
     } catch (error) {
       console.error('ログインエラー:', error);
       setError('メールアドレスまたはパスワードが正しくありません。');
