@@ -30,7 +30,11 @@ const getAllowedOrigin = () => {
   if (process.env.ALLOWED_ORIGIN) {
     return process.env.ALLOWED_ORIGIN;
   }
-  // 本番環境の判定（Firebase Functionsでは通常、GCLOUD_PROJECTが設定される）
+  // 本番環境（GCLOUD_PROJECTが存在）で環境変数が未設定の場合は、安全のために何も許可しない
+  if (process.env.GCLOUD_PROJECT) {
+    console.error('ALLOWED_ORIGIN environment variable is not set in production.');
+    return ''; // または、アプリケーションのURLなど安全なデフォルト値を設定
+  }
   // 開発環境ではすべてのオリジンを許可
   return '*';
 };
@@ -158,11 +162,11 @@ function initializeSocketIO(server) {
             .add(messageData);
 
         // ルーム情報を更新（最後のメッセージと更新日時）
+        // メンバー配列はメンバー追加/招待時のみ更新する
         await db.collection('chatRooms').doc(currentRoomId).set(
             {
               lastMessage: text.trim(),
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-              members: admin.firestore.FieldValue.arrayUnion(currentUserId),
             },
             {merge: true},
         );

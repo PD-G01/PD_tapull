@@ -108,9 +108,11 @@ function ChatPage() {
 
           // 新しいルームを作成（Cloud Function経由で公開情報を取得）
           let partnerName = 'ユーザー';
+          let partnerImage = '';
           try {
-            const result = await getPublicUserInfo({userId: partnerId});
+            const result = await getPublicUserInfo({ userId: partnerId });
             partnerName = result.data.name || 'ユーザー';
+            partnerImage = result.data.image || '';
           } catch (error) {
             console.error('ユーザー情報取得エラー:', error);
             alert('指定されたユーザーが見つかりません');
@@ -119,6 +121,9 @@ function ChatPage() {
           }
 
           const roomId = [currentUser.uid, partnerId].sort().join('_');
+          const currentUserName =
+            currentUser.displayName || currentUser.email || 'あなた';
+          const currentUserImage = currentUser.photoURL || '';
           const roomData = {
             members: [currentUser.uid, partnerId], // 常に2人のみ
             title: partnerName,
@@ -127,6 +132,16 @@ function ChatPage() {
             updatedAt: new Date(),
             lastMessage: '',
             isOneOnOne: true, // 1対1ルームのフラグ
+            membersInfo: {
+              [currentUser.uid]: {
+                name: currentUserName,
+                image: currentUserImage,
+              },
+              [partnerId]: {
+                name: partnerName,
+                image: partnerImage,
+              },
+            },
           };
 
           await setDoc(doc(db, 'chatRooms', roomId), roomData);
@@ -155,24 +170,20 @@ function ChatPage() {
     );
 
     const unsubscribe = onSnapshot(roomsQuery, async (snapshot) => {
-      const roomPromises = snapshot.docs.map(async (docSnapshot) => {
+      const roomData = snapshot.docs.map((docSnapshot) => {
         const data = docSnapshot.data();
         const members = data.members || [];
-        
+
         // 相手のユーザーIDを取得（現在のユーザー以外）
         const partnerId = members.find((id) => id !== currentUser.uid);
-        
-        let title = data.title || data.displayName || 'チャットルーム';
-        
-        // 相手のユーザー情報を取得して名前を設定（Cloud Function経由）
-        if (partnerId) {
-          try {
-            const result = await getPublicUserInfo({userId: partnerId});
-            title = result.data.name || 'ユーザー';
-          } catch (error) {
-            console.error('ユーザー情報取得エラー:', error);
-          }
-        }
+
+        // ルームに保存された公開情報を使用（N+1を避ける）
+        const membersInfo = data.membersInfo || {};
+        const title =
+          (partnerId && membersInfo[partnerId]?.name) ||
+          data.title ||
+          data.displayName ||
+          'チャットルーム';
 
         return {
           id: docSnapshot.id,
@@ -184,8 +195,6 @@ function ChatPage() {
           members,
         };
       });
-
-      const roomData = await Promise.all(roomPromises);
 
       roomData.sort((a, b) => {
         const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
@@ -202,7 +211,7 @@ function ChatPage() {
     });
 
     return () => unsubscribe();
-  }, [currentUser, activeRoomId]);
+  }, [currentUser]);
 
   const formatTimestamp = useCallback((value) => {
     if (!value) {
@@ -437,9 +446,11 @@ function ChatPage() {
     try {
       // 相手のユーザー情報を取得（Cloud Function経由）
       let partnerName = 'ユーザー';
+      let partnerImage = '';
       try {
-        const result = await getPublicUserInfo({userId: partnerId});
+        const result = await getPublicUserInfo({ userId: partnerId });
         partnerName = result.data.name || 'ユーザー';
+        partnerImage = result.data.image || '';
       } catch (error) {
         console.error('ユーザー情報取得エラー:', error);
         alert('指定されたユーザーが見つかりません');
@@ -474,6 +485,9 @@ function ChatPage() {
 
       // 新しいルームを作成（1対1のルーム：メンバーは常に2人のみ）
       const roomId = [currentUser.uid, partnerId].sort().join('_');
+      const currentUserName =
+        currentUser.displayName || currentUser.email || 'あなた';
+      const currentUserImage = currentUser.photoURL || '';
       const roomData = {
         members: [currentUser.uid, partnerId], // 常に2人のみ
         title: partnerName,
@@ -482,6 +496,16 @@ function ChatPage() {
         updatedAt: new Date(),
         lastMessage: '',
         isOneOnOne: true, // 1対1ルームのフラグ
+        membersInfo: {
+          [currentUser.uid]: {
+            name: currentUserName,
+            image: currentUserImage,
+          },
+          [partnerId]: {
+            name: partnerName,
+            image: partnerImage,
+          },
+        },
       };
 
       await setDoc(doc(db, 'chatRooms', roomId), roomData);
