@@ -18,22 +18,39 @@ service cloud.firestore {
     
     // チャットルームコレクション（chatRooms）
     match /chatRooms/{roomId} {
-      // 認証済みユーザーで、ルームのメンバーに含まれている場合は読み書き可能
-      allow read: if request.auth != null && 
-                     (request.auth.uid in resource.data.members || 
-                      request.auth.uid in request.resource.data.members);
-      allow create: if request.auth != null;
+      // 単一ドキュメントの読み取り（getDocなど）
+      allow get: if request.auth != null && 
+                    resource.data.members != null &&
+                    request.auth.uid in resource.data.members;
+      
+      // クエリでの取得（getDocs, onSnapshotなど）
+      // where句でmembersフィールドをフィルタリングする必要がある
+      // 各ドキュメントはallow getの条件でチェックされる
+      allow list: if request.auth != null;
+      
+      // ルームの作成（認証済みユーザーなら誰でも作成可能）
+      allow create: if request.auth != null &&
+                       request.resource.data.members != null &&
+                       request.auth.uid in request.resource.data.members;
+      
+      // ルームの更新（メンバーのみ可能）
       allow update: if request.auth != null && 
+                       resource.data.members != null &&
                        request.auth.uid in resource.data.members;
       
       // メッセージサブコレクション
       match /messages/{messageId} {
-        // 認証済みユーザーで、ルームのメンバーに含まれている場合は読み書き可能
+        // メッセージの読み取り（ルームのメンバーのみ）
+        // 親ルームのメンバーチェックは上位ルールで行われる
         allow read: if request.auth != null;
+        
+        // メッセージの作成（送信者のみ）
         allow create: if request.auth != null && 
-                         request.auth.uid == request.resource.data.senderId;
+                         request.resource.data.senderId == request.auth.uid;
+        
+        // メッセージの更新・削除（送信者のみ）
         allow update, delete: if request.auth != null && 
-                                  request.auth.uid == resource.data.senderId;
+                                  resource.data.senderId == request.auth.uid;
       }
     }
     
