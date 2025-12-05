@@ -473,7 +473,7 @@ function ChatPage() {
       }
 
       // 新しいルームを作成（1対1のルーム：メンバーは常に2人のみ）
-      const roomId = `${currentUser.uid}_${partnerId}_${Date.now()}`;
+      const roomId = [currentUser.uid, partnerId].sort().join('_');
       const roomData = {
         members: [currentUser.uid, partnerId], // 常に2人のみ
         title: partnerName,

@@ -12,6 +12,9 @@ const {setGlobalOptions} = require('firebase-functions');
 const admin = require('firebase-admin');
 const {Server} = require('socket.io');
 
+// Firestoreクエリ用のインポート
+const {FieldPath} = admin.firestore;
+
 // Firebase Admin初期化
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -318,8 +321,9 @@ exports.getPublicUserInfo = onCall(
 );
 
 /**
- * ユーザー検索（セキュリティ対策）
+ * ユーザー検索（セキュリティ対策・パフォーマンス最適化）
  * メールアドレスなどの機密情報は返さない
+ * Firestoreのクエリを使用して効率的に検索（全件取得を避ける）
  */
 exports.searchUsers = onCall(
     {
@@ -340,34 +344,79 @@ exports.searchUsers = onCall(
         }
 
         const queryLower = searchQuery.toLowerCase().trim();
+        const queryUpper = queryLower.charAt(0).toUpperCase() + queryLower.slice(1);
+        const nextChar = String.fromCharCode(queryLower.charCodeAt(queryLower.length - 1) + 1);
+        const queryEnd = queryLower.slice(0, -1) + nextChar;
 
-        // 全ユーザーを取得（Admin SDKなので権限がある）
-        const usersSnapshot = await db.collection('user').get();
+        // 検索結果を格納するSet（重複を避けるため）
+        const resultMap = new Map();
 
-        const results = usersSnapshot.docs
-            .filter((doc) => {
-              // 自分自身は除外
-              if (doc.id === currentUserId) return false;
-
+        // 1. ユーザー名で前方一致検索（user-nameフィールド）
+        try {
+          const nameQuery = db.collection('user')
+              .where('user-name', '>=', queryLower)
+              .where('user-name', '<', queryEnd)
+              .limit(10);
+          
+          const nameSnapshot = await nameQuery.get();
+          nameSnapshot.docs.forEach((doc) => {
+            if (doc.id !== currentUserId) {
               const data = doc.data();
               const userName = (data['user-name'] || data.name || '').toLowerCase();
-              const email = (data['mail-address'] || data.email || '').toLowerCase();
-              const userId = doc.id.toLowerCase();
+              if (userName.startsWith(queryLower)) {
+                resultMap.set(doc.id, {
+                  id: doc.id,
+                  name: data['user-name'] || data.name || 'ユーザー',
+                });
+              }
+            }
+          });
+        } catch (error) {
+          console.warn('ユーザー名検索エラー（続行します）:', error);
+        }
 
-              // 名前、メールアドレス、またはユーザーIDで検索
-              return userName.includes(queryLower) ||
-                     email.includes(queryLower) ||
-                     userId.includes(queryLower);
-            })
-            .map((doc) => {
+        // 2. メールアドレスで前方一致検索（mail-addressフィールド）
+        try {
+          const emailQuery = db.collection('user')
+              .where('mail-address', '>=', queryLower)
+              .where('mail-address', '<', queryEnd)
+              .limit(10);
+          
+          const emailSnapshot = await emailQuery.get();
+          emailSnapshot.docs.forEach((doc) => {
+            if (doc.id !== currentUserId && !resultMap.has(doc.id)) {
               const data = doc.data();
-              return {
-                id: doc.id,
+              const email = (data['mail-address'] || data.email || '').toLowerCase();
+              if (email.startsWith(queryLower)) {
+                resultMap.set(doc.id, {
+                  id: doc.id,
+                  name: data['user-name'] || data.name || 'ユーザー',
+                });
+              }
+            }
+          });
+        } catch (error) {
+          console.warn('メールアドレス検索エラー（続行します）:', error);
+        }
+
+        // 3. ユーザーIDで完全一致検索（短いクエリの場合のみ）
+        if (queryLower.length >= 8 && queryLower.length <= 28) {
+          try {
+            const userDoc = await db.collection('user').doc(queryLower).get();
+            if (userDoc.exists && userDoc.id !== currentUserId && !resultMap.has(userDoc.id)) {
+              const data = userDoc.data();
+              resultMap.set(userDoc.id, {
+                id: userDoc.id,
                 name: data['user-name'] || data.name || 'ユーザー',
-                // メールアドレスは検索には使用するが、結果には含めない（セキュリティ）
-              };
-            })
-            .slice(0, 10); // 最大10件まで
+              });
+            }
+          } catch (error) {
+            console.warn('ユーザーID検索エラー（続行します）:', error);
+          }
+        }
+
+        // 結果を配列に変換して最大10件まで返す
+        const results = Array.from(resultMap.values()).slice(0, 10);
 
         return {results};
       } catch (error) {
