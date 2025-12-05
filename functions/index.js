@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require('firebase-functions/v2/https');
+const {onRequest, onCall} = require('firebase-functions/v2/https');
 const {setGlobalOptions} = require('firebase-functions');
 const admin = require('firebase-admin');
 const {Server} = require('socket.io');
@@ -18,6 +18,19 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+
+// CORS設定: 環境変数から許可するオリジンを取得
+// 本番環境では環境変数ALLOWED_ORIGINを設定（例: https://pdtapull.web.app）
+// 開発環境では未設定の場合、すべてのオリジンを許可
+const getAllowedOrigin = () => {
+  // 環境変数が設定されている場合はそれを使用
+  if (process.env.ALLOWED_ORIGIN) {
+    return process.env.ALLOWED_ORIGIN;
+  }
+  // 本番環境の判定（Firebase Functionsでは通常、GCLOUD_PROJECTが設定される）
+  // 開発環境ではすべてのオリジンを許可
+  return '*';
+};
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -34,9 +47,6 @@ setGlobalOptions({maxInstances: 10});
 // Socket.ioサーバーの初期化（グローバルスコープで一度だけ）
 let io = null;
 
-// 接続管理用のMap（ルームID -> 接続中のユーザーIDの配列）
-const roomUsers = new Map();
-
 /**
  * Socket.ioサーバーを初期化する
  * @param {Object} server - HTTPサーバーインスタンス
@@ -49,7 +59,7 @@ function initializeSocketIO(server) {
 
   io = new Server(server, {
     cors: {
-      origin: '*', // 開発環境ではすべてのオリジンを許可
+      origin: getAllowedOrigin(), // 環境変数から許可するオリジンを取得
       methods: ['GET', 'POST', 'OPTIONS'],
       credentials: false,
       allowedHeaders: ['Content-Type', 'Authorization'],
@@ -83,11 +93,18 @@ function initializeSocketIO(server) {
         // ルームに参加
         socket.join(roomId);
 
-        // ルームのユーザーリストを更新
-        if (!roomUsers.has(roomId)) {
-          roomUsers.set(roomId, new Set());
-        }
-        roomUsers.get(roomId).add(currentUserId);
+        // Firestoreにpresence情報を保存（複数インスタンス間で共有）
+        const presenceRef = db
+            .collection('chatRooms')
+            .doc(roomId)
+            .collection('presence')
+            .doc(currentUserId);
+        
+        await presenceRef.set({
+          userId: currentUserId,
+          connectedAt: admin.firestore.FieldValue.serverTimestamp(),
+          socketId: socket.id,
+        });
 
         console.log(`ユーザー ${currentUserId} がルーム ${roomId} に参加`);
 
@@ -165,23 +182,33 @@ function initializeSocketIO(server) {
     });
 
     // 切断処理
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       console.log('クライアント切断:', socket.id);
 
       if (currentRoomId && currentUserId) {
-        // ルームからユーザーを削除
-        if (roomUsers.has(currentRoomId)) {
-          roomUsers.get(currentRoomId).delete(currentUserId);
-          if (roomUsers.get(currentRoomId).size === 0) {
-            roomUsers.delete(currentRoomId);
-          }
-        }
+        try {
+          // Firestoreからpresence情報を削除（複数インスタンス間で共有）
+          const presenceRef = db
+              .collection('chatRooms')
+              .doc(currentRoomId)
+              .collection('presence')
+              .doc(currentUserId);
+          
+          await presenceRef.delete();
 
-        // ルーム内の他のユーザーに通知
-        socket.to(currentRoomId).emit('userLeft', {
-          userId: currentUserId,
-          roomId: currentRoomId,
-        });
+          // ルーム内の他のユーザーに通知
+          socket.to(currentRoomId).emit('userLeft', {
+            userId: currentUserId,
+            roomId: currentRoomId,
+          });
+        } catch (error) {
+          console.error('presence削除エラー:', error);
+          // エラーが発生しても、Socket.ioの通知は送信する
+          socket.to(currentRoomId).emit('userLeft', {
+            userId: currentUserId,
+            roomId: currentRoomId,
+          });
+        }
       }
     });
   });
@@ -192,15 +219,24 @@ function initializeSocketIO(server) {
 // WebSocketサーバー用のHTTP関数
 exports.chatSocket = onRequest(
     {
-      cors: true, // すべてのオリジンを許可
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
       maxInstances: 10,
     },
     (req, res) => {
       // CORSヘッダーを明示的に設定（Socket.ioエンジンが処理する前に）
       const origin = req.headers.origin;
+      const allowedOrigin = getAllowedOrigin();
 
-      // すべてのオリジンを許可（開発環境）
-      res.set('Access-Control-Allow-Origin', origin || '*');
+      // 許可されたオリジンのみを設定
+      if (allowedOrigin === '*') {
+        // 開発環境: リクエストのオリジンを許可
+        res.set('Access-Control-Allow-Origin', origin || '*');
+      } else {
+        // 本番環境: 許可されたオリジンのみ
+        if (origin === allowedOrigin) {
+          res.set('Access-Control-Allow-Origin', allowedOrigin);
+        }
+      }
       res.set('Access-Control-Allow-Methods',
           'GET, POST, OPTIONS, PUT, DELETE');
       res.set('Access-Control-Allow-Headers',
@@ -234,5 +270,109 @@ exports.chatSocket = onRequest(
 
       // Socket.ioのHTTPリクエストを処理
       io.engine.handleRequest(req, res);
+    },
+);
+
+/**
+ * 公開ユーザー情報を取得する（セキュリティ対策）
+ * メールアドレスなどの機密情報は返さない
+ */
+exports.getPublicUserInfo = onCall(
+    {
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
+      maxInstances: 10,
+    },
+    async (request) => {
+      try {
+        // 認証チェック
+        if (!request.auth) {
+          throw new Error('認証が必要です');
+        }
+
+        const {userId} = request.data;
+
+        if (!userId) {
+          throw new Error('ユーザーIDが必要です');
+        }
+
+        // ユーザードキュメントを取得
+        const userDoc = await db.collection('user').doc(userId).get();
+
+        if (!userDoc.exists) {
+          throw new Error('ユーザーが見つかりません');
+        }
+
+        const userData = userDoc.data();
+
+        // 公開情報のみを返す（メールアドレスは除外）
+        return {
+          id: userId,
+          name: userData['user-name'] || userData.name || 'ユーザー',
+          image: userData.image || '',
+        };
+      } catch (error) {
+        console.error('公開ユーザー情報取得エラー:', error);
+        throw new Error(error.message || 'ユーザー情報の取得に失敗しました');
+      }
+    },
+);
+
+/**
+ * ユーザー検索（セキュリティ対策）
+ * メールアドレスなどの機密情報は返さない
+ */
+exports.searchUsers = onCall(
+    {
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
+      maxInstances: 10,
+    },
+    async (request) => {
+      try {
+        // 認証チェック
+        if (!request.auth) {
+          throw new Error('認証が必要です');
+        }
+
+        const {query: searchQuery, currentUserId} = request.data;
+
+        if (!searchQuery || !searchQuery.trim()) {
+          return {results: []};
+        }
+
+        const queryLower = searchQuery.toLowerCase().trim();
+
+        // 全ユーザーを取得（Admin SDKなので権限がある）
+        const usersSnapshot = await db.collection('user').get();
+
+        const results = usersSnapshot.docs
+            .filter((doc) => {
+              // 自分自身は除外
+              if (doc.id === currentUserId) return false;
+
+              const data = doc.data();
+              const userName = (data['user-name'] || data.name || '').toLowerCase();
+              const email = (data['mail-address'] || data.email || '').toLowerCase();
+              const userId = doc.id.toLowerCase();
+
+              // 名前、メールアドレス、またはユーザーIDで検索
+              return userName.includes(queryLower) ||
+                     email.includes(queryLower) ||
+                     userId.includes(queryLower);
+            })
+            .map((doc) => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                name: data['user-name'] || data.name || 'ユーザー',
+                // メールアドレスは検索には使用するが、結果には含めない（セキュリティ）
+              };
+            })
+            .slice(0, 10); // 最大10件まで
+
+        return {results};
+      } catch (error) {
+        console.error('ユーザー検索エラー:', error);
+        throw new Error(error.message || 'ユーザー検索に失敗しました');
+      }
     },
 );

@@ -16,10 +16,11 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import '../../global.css';
 import './chat.css';
 import SiteHeader from '../../components/SiteHeader';
-import { auth, db } from '../../utils/firebase';
+import { auth, db, app } from '../../utils/firebase';
 
 const getDefaultSocketUrl = () => {
   const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
@@ -31,6 +32,11 @@ const getDefaultSocketUrl = () => {
 
 const CHAT_SOCKET_URL =
   import.meta.env.VITE_CHAT_SOCKET_URL || getDefaultSocketUrl();
+
+// Cloud Functionsの初期化
+const functions = getFunctions(app);
+const getPublicUserInfo = httpsCallable(functions, 'getPublicUserInfo');
+const searchUsers = httpsCallable(functions, 'searchUsers');
 
 function ChatPage() {
   const navigate = useNavigate();
@@ -100,18 +106,19 @@ function ChatPage() {
             return;
           }
 
-          // 新しいルームを作成
-          const partnerDoc = await getDoc(doc(db, 'user', partnerId));
-          if (!partnerDoc.exists()) {
-            console.error('指定されたユーザーが見つかりません');
+          // 新しいルームを作成（Cloud Function経由で公開情報を取得）
+          let partnerName = 'ユーザー';
+          try {
+            const result = await getPublicUserInfo({userId: partnerId});
+            partnerName = result.data.name || 'ユーザー';
+          } catch (error) {
+            console.error('ユーザー情報取得エラー:', error);
+            alert('指定されたユーザーが見つかりません');
             navigate('/chat', { replace: true });
             return;
           }
 
-          const partnerData = partnerDoc.data();
-          const partnerName = partnerData['user-name'] || partnerData.name || 'ユーザー';
-
-          const roomId = `${currentUser.uid}_${partnerId}_${Date.now()}`;
+          const roomId = [currentUser.uid, partnerId].sort().join('_');
           const roomData = {
             members: [currentUser.uid, partnerId], // 常に2人のみ
             title: partnerName,
@@ -157,14 +164,11 @@ function ChatPage() {
         
         let title = data.title || data.displayName || 'チャットルーム';
         
-        // 相手のユーザー情報を取得して名前を設定
+        // 相手のユーザー情報を取得して名前を設定（Cloud Function経由）
         if (partnerId) {
           try {
-            const partnerDoc = await getDoc(doc(db, 'user', partnerId));
-            if (partnerDoc.exists()) {
-              const partnerData = partnerDoc.data();
-              title = partnerData['user-name'] || partnerData.name || 'ユーザー';
-            }
+            const result = await getPublicUserInfo({userId: partnerId});
+            title = result.data.name || 'ユーザー';
           } catch (error) {
             console.error('ユーザー情報取得エラー:', error);
           }
@@ -380,42 +384,25 @@ function ChatPage() {
     }
   };
 
-  // ユーザー検索機能
-  const handleSearchUsers = async (query) => {
-    if (!query.trim() || !currentUser) {
+  // ユーザー検索機能（Cloud Function経由）
+  const handleSearchUsers = async (searchQuery) => {
+    if (!searchQuery.trim() || !currentUser) {
       setSearchResults([]);
       return;
     }
 
     setIsSearching(true);
     try {
-      const usersRef = collection(db, 'user');
-      const usersSnapshot = await getDocs(usersRef);
+      const result = await searchUsers({
+        query: searchQuery,
+        currentUserId: currentUser.uid,
+      });
       
-      const results = usersSnapshot.docs
-        .filter((doc) => {
-          // 自分自身は除外
-          if (doc.id === currentUser.uid) return false;
-          
-          const data = doc.data();
-          const userName = data['user-name'] || data.name || '';
-          const email = data['mail-address'] || data.email || '';
-          const searchLower = query.toLowerCase();
-          
-          // 名前またはメールアドレスで検索
-          return userName.toLowerCase().includes(searchLower) || 
-                 email.toLowerCase().includes(searchLower) ||
-                 doc.id.toLowerCase().includes(searchLower);
-        })
-        .map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data['user-name'] || data.name || 'ユーザー',
-            email: data['mail-address'] || data.email || '',
-          };
-        })
-        .slice(0, 10); // 最大10件まで
+      const results = result.data.results.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: '', // セキュリティのため、メールアドレスは返さない
+      }));
 
       setSearchResults(results);
     } catch (error) {
@@ -448,16 +435,17 @@ function ChatPage() {
     setIsCreatingRoom(true);
 
     try {
-      // 相手のユーザー情報を取得
-      const partnerDoc = await getDoc(doc(db, 'user', partnerId));
-      if (!partnerDoc.exists()) {
+      // 相手のユーザー情報を取得（Cloud Function経由）
+      let partnerName = 'ユーザー';
+      try {
+        const result = await getPublicUserInfo({userId: partnerId});
+        partnerName = result.data.name || 'ユーザー';
+      } catch (error) {
+        console.error('ユーザー情報取得エラー:', error);
         alert('指定されたユーザーが見つかりません');
         setIsCreatingRoom(false);
         return;
       }
-
-      const partnerData = partnerDoc.data();
-      const partnerName = partnerData['user-name'] || partnerData.name || 'ユーザー';
 
       // 既存のルームをチェック（1対1のルームのみ：メンバーが2人で、両方のユーザーが含まれている）
       const existingRoomsQuery = query(
@@ -739,7 +727,7 @@ function ChatPage() {
                       </div>
                       <div className="search-result-info">
                         <p className="search-result-name">{user.name}</p>
-                        <p className="search-result-email">{user.email}</p>
+                        {user.email && <p className="search-result-email">{user.email}</p>}
                         <p className="search-result-id">ID: {user.id}</p>
                       </div>
                     </button>

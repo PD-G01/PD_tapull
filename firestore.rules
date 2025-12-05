@@ -6,8 +6,6 @@ service cloud.firestore {
     match /user/{userId} {
       // 認証済みユーザーは自分のデータを読み書き可能
       allow read: if request.auth != null && request.auth.uid == userId;
-      // 認証済みユーザーは他のユーザーの基本情報（名前など）を読み取り可能（チャット用）
-      allow get: if request.auth != null;
       // 新規登録時は自分のUIDでデータを作成可能
       allow create: if request.auth != null && request.auth.uid == userId;
       // 更新は自分のデータのみ可能
@@ -24,9 +22,11 @@ service cloud.firestore {
                     request.auth.uid in resource.data.members;
       
       // クエリでの取得（getDocs, onSnapshotなど）
-      // where句でmembersフィールドをフィルタリングする必要がある
-      // 各ドキュメントはallow getの条件でチェックされる
-      allow list: if request.auth != null;
+      // listルールを定義しないことで、クエリはgetルールに基づいて評価される
+      // これにより、各ドキュメントがgetルール（メンバーチェック）を満たす場合のみクエリが成功する
+      // クライアント側でwhere('members', 'array-contains', currentUser.uid)を指定する必要がある
+      // 悪意のあるユーザーがmembersフィールドを含まないクエリを実行しても、
+      // 各ドキュメントがgetルールを満たさないため、クエリは失敗する
       
       // ルームの作成（認証済みユーザーなら誰でも作成可能）
       allow create: if request.auth != null &&
@@ -41,16 +41,43 @@ service cloud.firestore {
       // メッセージサブコレクション
       match /messages/{messageId} {
         // メッセージの読み取り（ルームのメンバーのみ）
-        // 親ルームのメンバーチェックは上位ルールで行われる
-        allow read: if request.auth != null;
+        // サブコレクションのルールは親ドキュメントのルールを継承しないため、
+        // 明示的に親ルームのメンバーチェックが必要
+        allow read: if request.auth != null && 
+                      get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
+                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
         
-        // メッセージの作成（送信者のみ）
+        // メッセージの作成（送信者のみ、かつルームのメンバーのみ）
         allow create: if request.auth != null && 
-                         request.resource.data.senderId == request.auth.uid;
+                         request.resource.data.senderId == request.auth.uid &&
+                         get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
+                         request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
         
         // メッセージの更新・削除（送信者のみ）
         allow update, delete: if request.auth != null && 
                                   resource.data.senderId == request.auth.uid;
+      }
+      
+      // プレゼンスサブコレクション（オンライン状態管理）
+      match /presence/{userId} {
+        // ルームのメンバーは全員のpresence情報を読み取り可能
+        allow read: if request.auth != null && 
+                      get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
+                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+        
+        // 自分のpresenceドキュメントのみ作成可能
+        allow create: if request.auth != null && 
+                         request.auth.uid == userId &&
+                         request.resource.data.userId == userId;
+        
+        // 自分のpresenceドキュメントのみ更新可能
+        allow update: if request.auth != null && 
+                         request.auth.uid == userId &&
+                         resource.data.userId == userId;
+        
+        // 自分のpresenceドキュメントのみ削除可能
+        allow delete: if request.auth != null && 
+                         request.auth.uid == userId;
       }
     }
     
