@@ -49,12 +49,14 @@ function initializeSocketIO(server) {
 
   io = new Server(server, {
     cors: {
-      origin: true,
-      methods: ['GET', 'POST'],
-      credentials: true,
+      origin: '*', // 開発環境ではすべてのオリジンを許可
+      methods: ['GET', 'POST', 'OPTIONS'],
+      credentials: false,
+      allowedHeaders: ['Content-Type', 'Authorization'],
     },
     path: '/socket.io/',
-    transports: ['websocket', 'polling'],
+    transports: ['polling', 'websocket'], // pollingを先に試す
+    allowEIO3: true,
   });
 
   io.on('connection', async (socket) => {
@@ -190,16 +192,47 @@ function initializeSocketIO(server) {
 // WebSocketサーバー用のHTTP関数
 exports.chatSocket = onRequest(
     {
-      cors: true,
+      cors: true, // すべてのオリジンを許可
       maxInstances: 10,
     },
     (req, res) => {
-    // Socket.ioサーバーの初期化
+      // CORSヘッダーを明示的に設定（Socket.ioエンジンが処理する前に）
+      const origin = req.headers.origin;
+
+      // すべてのオリジンを許可（開発環境）
+      res.set('Access-Control-Allow-Origin', origin || '*');
+      res.set('Access-Control-Allow-Methods',
+          'GET, POST, OPTIONS, PUT, DELETE');
+      res.set('Access-Control-Allow-Headers',
+          'Content-Type, Authorization, X-Requested-With');
+      res.set('Access-Control-Allow-Credentials', 'true');
+      res.set('Access-Control-Max-Age', '86400');
+
+      // OPTIONSリクエストの処理（プリフライトリクエスト）
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+
+      // Socket.ioサーバーの初期化
       if (!req.socket.server.io) {
         initializeSocketIO(req.socket.server);
       }
 
+      const io = req.socket.server.io;
+
+      // Socket.ioのエンジンがCORSヘッダーを上書きしないように、
+      // レスポンスオブジェクトをラップする
+      const originalSetHeader = res.setHeader;
+      res.setHeader = function(name, value) {
+        if (name.toLowerCase() === 'access-control-allow-origin') {
+          // CORSヘッダーは既に設定されているので、上書きしない
+          return this;
+        }
+        return originalSetHeader.call(this, name, value);
+      };
+
       // Socket.ioのHTTPリクエストを処理
-      req.socket.server.io.engine.handleRequest(req, res);
+      io.engine.handleRequest(req, res);
     },
 );

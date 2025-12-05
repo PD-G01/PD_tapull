@@ -3,6 +3,7 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
@@ -13,6 +14,7 @@ import {
   query,
   setDoc,
   where,
+  Timestamp,
 } from 'firebase/firestore';
 import '../../global.css';
 import './chat.css';
@@ -145,18 +147,41 @@ function ChatPage() {
       where('members', 'array-contains', currentUser.uid)
     );
 
-    const unsubscribe = onSnapshot(roomsQuery, (snapshot) => {
-      const roomData = snapshot.docs.map((doc) => {
-        const data = doc.data();
+    const unsubscribe = onSnapshot(roomsQuery, async (snapshot) => {
+      const roomPromises = snapshot.docs.map(async (docSnapshot) => {
+        const data = docSnapshot.data();
+        const members = data.members || [];
+        
+        // 相手のユーザーIDを取得（現在のユーザー以外）
+        const partnerId = members.find((id) => id !== currentUser.uid);
+        
+        let title = data.title || data.displayName || 'チャットルーム';
+        
+        // 相手のユーザー情報を取得して名前を設定
+        if (partnerId) {
+          try {
+            const partnerDoc = await getDoc(doc(db, 'user', partnerId));
+            if (partnerDoc.exists()) {
+              const partnerData = partnerDoc.data();
+              title = partnerData['user-name'] || partnerData.name || 'ユーザー';
+            }
+          } catch (error) {
+            console.error('ユーザー情報取得エラー:', error);
+          }
+        }
+
         return {
-          id: doc.id,
-          title: data.title || data.displayName || 'チャットルーム',
+          id: docSnapshot.id,
+          title,
           lastMessage: data.lastMessage || '',
           updatedAt: data.updatedAt?.toDate
             ? data.updatedAt.toDate()
             : data.updatedAt,
+          members,
         };
       });
+
+      const roomData = await Promise.all(roomPromises);
 
       roomData.sort((a, b) => {
         const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
@@ -188,20 +213,24 @@ function ChatPage() {
     }).format(date);
   }, []);
 
-  const loadMessages = useCallback(
-    async (roomId) => {
-      if (!roomId) {
-        return;
-      }
-      setIsLoadingMessages(true);
-      try {
-        const messagesRef = collection(db, 'chatRooms', roomId, 'messages');
-        const messagesQuery = query(
-          messagesRef,
-          orderBy('createdAt', 'asc'),
-          limit(200)
-        );
-        const snapshot = await getDocs(messagesQuery);
+  // Firestoreのリアルタイムリスナーでメッセージを監視
+  useEffect(() => {
+    if (!activeRoomId || !currentUser) {
+      setMessages([]);
+      return undefined;
+    }
+
+    setIsLoadingMessages(true);
+    const messagesRef = collection(db, 'chatRooms', activeRoomId, 'messages');
+    const messagesQuery = query(
+      messagesRef,
+      orderBy('createdAt', 'asc'),
+      limit(200)
+    );
+
+    const unsubscribe = onSnapshot(
+      messagesQuery,
+      (snapshot) => {
         const messageData = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
@@ -210,40 +239,41 @@ function ChatPage() {
             text: data.text,
             createdAt: data.createdAt?.toDate
               ? data.createdAt.toDate().toISOString()
+              : data.createdAt instanceof Timestamp
+              ? data.createdAt.toDate().toISOString()
               : data.createdAt,
           };
         });
         setMessages(messageData);
-      } catch (error) {
-        console.error('メッセージ読み込みエラー:', error);
-      } finally {
+        setIsLoadingMessages(false);
+      },
+      (error) => {
+        console.error('メッセージ監視エラー:', error);
         setIsLoadingMessages(false);
       }
-    },
-    []
-  );
+    );
 
-  useEffect(() => {
-    if (!activeRoomId) {
-      setMessages([]);
-      return;
-    }
-    loadMessages(activeRoomId);
-  }, [activeRoomId, loadMessages]);
+    return () => unsubscribe();
+  }, [activeRoomId, currentUser]);
 
+  // WebSocket接続（オプション：Firestoreのリアルタイムリスナーが主）
   useEffect(() => {
     if (!currentUser || !activeRoomId) {
+      setSocketStatus('disconnected');
       return undefined;
     }
 
     let isMounted = true;
+    let socket = null;
 
     const connectSocket = async () => {
       try {
         const token = await currentUser.getIdToken();
-        const socket = io(CHAT_SOCKET_URL, {
-          transports: ['websocket'],
-          reconnectionAttempts: 5,
+        socket = io(CHAT_SOCKET_URL, {
+          transports: ['polling', 'websocket'],
+          reconnectionAttempts: 3,
+          reconnectionDelay: 1000,
+          timeout: 10000,
           auth: {
             token,
           },
@@ -263,31 +293,33 @@ function ChatPage() {
         });
 
         socket.on('connect_error', (error) => {
-          console.error('ソケット接続エラー:', error);
+          console.warn('ソケット接続エラー（Firestoreで動作します）:', error.message);
           if (!isMounted) return;
-          setSocketStatus('error');
+          setSocketStatus('disconnected');
+          // WebSocket接続に失敗しても、Firestoreのリアルタイムリスナーで動作する
         });
 
         socket.on('newMessage', (message) => {
           if (!isMounted) return;
-          setMessages((prev) => [
-            ...prev,
-            {
-              ...message,
-              createdAt: message.createdAt,
-            },
-          ]);
+          // Firestoreのリアルタイムリスナーで自動更新されるため、ここでは何もしない
         });
       } catch (error) {
-        console.error('ソケット初期化エラー:', error);
-        setSocketStatus('error');
+        console.warn('ソケット初期化エラー（Firestoreで動作します）:', error);
+        setSocketStatus('disconnected');
       }
     };
 
-    connectSocket();
+    // WebSocket接続を試みる（失敗してもFirestoreで動作する）
+    connectSocket().catch(() => {
+      // エラーは無視（Firestoreのリアルタイムリスナーで動作する）
+    });
 
     return () => {
       isMounted = false;
+      if (socket) {
+        socket.disconnect();
+        socket = null;
+      }
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -302,15 +334,50 @@ function ChatPage() {
     }
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (!socketRef.current || !inputValue.trim() || !activeRoomId) {
+  const handleSendMessage = async () => {
+    if (!currentUser || !inputValue.trim() || !activeRoomId) {
       return;
     }
-    socketRef.current.emit('message', {
-      text: inputValue.trim(),
-      roomId: activeRoomId,
-    });
+
+    const messageText = inputValue.trim();
     setInputValue('');
+
+    try {
+      // WebSocketが接続されている場合はWebSocket経由で送信
+      if (socketRef.current && socketStatus === 'connected') {
+        socketRef.current.emit('message', {
+          text: messageText,
+          roomId: activeRoomId,
+        });
+      } else {
+        // WebSocketが接続されていない場合は、直接Firestoreに保存
+        const messageData = {
+          senderId: currentUser.uid,
+          text: messageText,
+          createdAt: Timestamp.now(),
+          roomId: activeRoomId,
+        };
+
+        await addDoc(
+          collection(db, 'chatRooms', activeRoomId, 'messages'),
+          messageData
+        );
+
+        // ルーム情報を更新
+        await setDoc(
+          doc(db, 'chatRooms', activeRoomId),
+          {
+            lastMessage: messageText,
+            updatedAt: Timestamp.now(),
+          },
+          { merge: true }
+        );
+      }
+    } catch (error) {
+      console.error('メッセージ送信エラー:', error);
+      alert('メッセージの送信に失敗しました');
+      setInputValue(messageText); // エラー時は入力値を戻す
+    }
   };
 
   // ユーザー検索機能
@@ -592,9 +659,9 @@ function ChatPage() {
               placeholder={activeRoom ? 'メッセージを入力' : 'ルームを選択してください'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              disabled={!activeRoom || socketStatus !== 'connected'}
+              disabled={!activeRoom}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && activeRoom) {
                   e.preventDefault();
                   handleSendMessage();
                 }
@@ -609,7 +676,7 @@ function ChatPage() {
                 className="icon-button primary"
                 aria-label="送信"
                 onClick={handleSendMessage}
-                disabled={!activeRoom || socketStatus !== 'connected'}
+                disabled={!activeRoom}
               >
                 <span className="material-icons">send</span>
               </button>
