@@ -44,9 +44,12 @@ service cloud.firestore {
         // メッセージの読み取り（ルームのメンバーのみ）
         // サブコレクションのルールは親ドキュメントのルールを継承しないため、
         // 明示的に親ルームのメンバーチェックが必要
-        allow read: if request.auth != null && 
-                      get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
-                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+        function isRoomMember(roomId) {
+          return request.auth != null &&
+                 get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
+                 request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+        }
+        allow read: if isRoomMember(roomId);
         
         // メッセージの作成（送信者のみ、かつルームのメンバーのみ）
         allow create: if request.auth != null && 

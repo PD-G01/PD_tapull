@@ -753,7 +753,7 @@ function ChatPage() {
                   id="user-search"
                   type="text"
                   className="form-input"
-                  placeholder="名前、メールアドレス、またはユーザーIDで検索"
+                  placeholder="名前、またはユーザーIDで検索"
                   value={searchQuery}
                   onChange={(e) => {
                     const query = e.target.value;

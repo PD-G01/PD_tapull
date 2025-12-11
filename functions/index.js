@@ -178,9 +178,6 @@ function initializeSocketIO(server) {
           createdAt: new Date().toISOString(), // クライアント用に文字列化
         };
 
-        // ルーム内の全員にメッセージをブロードキャスト
-        io.to(currentRoomId).emit('newMessage', messageWithId);
-
         console.log(`メッセージ送信: ルーム ${currentRoomId}, 送信者 ${currentUserId}`);
       } catch (error) {
         console.error('メッセージ送信エラー:', error);
@@ -348,7 +345,7 @@ exports.searchUsers = onCall(
         }
 
         const queryLower = searchQuery.toLowerCase().trim();
-        const queryUpper = queryLower.charAt(0).toUpperCase() + queryLower.slice(1);
+        //const queryUpper = queryLower.charAt(0).toUpperCase() + queryLower.slice(1);
         const nextChar = String.fromCharCode(queryLower.charCodeAt(queryLower.length - 1) + 1);
         const queryEnd = queryLower.slice(0, -1) + nextChar;
 
