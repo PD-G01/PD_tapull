@@ -56,6 +56,7 @@ function ChatPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const socketRef = useRef(null);
   const messageListRef = useRef(null);
 
@@ -269,17 +270,20 @@ function ChatPage() {
     return () => unsubscribe();
   }, [activeRoomId, currentUser]);
 
-  // WebSocket接続（オプション：Firestoreのリアルタイムリスナーが主）
+  // WebSocket接続管理の効率化：コンポーネントマウント時に一度だけ接続を行い、ルーム切替時はjoin/leaveイベントのみ
   useEffect(() => {
-    if (!currentUser || !activeRoomId) {
-      setSocketStatus('disconnected');
-      return undefined;
-    }
-
     let isMounted = true;
-    let socket = null;
+    let socket = socketRef.current;
 
-    const connectSocket = async () => {
+    const connectSocketOnce = async () => {
+      if (!currentUser) {
+        setSocketStatus('disconnected');
+        return;
+      }
+      if (socketRef.current) {
+        // すでに接続済みの場合は何もしない（ルーム切替は別で処理）
+        return;
+      }
       try {
         const token = await currentUser.getIdToken();
         socket = io(CHAT_SOCKET_URL, {
@@ -291,13 +295,11 @@ function ChatPage() {
             token,
           },
         });
-
         socketRef.current = socket;
 
         socket.on('connect', () => {
           if (!isMounted) return;
           setSocketStatus('connected');
-          socket.emit('join', { token, roomId: activeRoomId });
         });
 
         socket.on('disconnect', () => {
@@ -306,40 +308,64 @@ function ChatPage() {
         });
 
         socket.on('connect_error', (error) => {
-          console.warn('ソケット接続エラー（Firestoreで動作します）:', error.message);
+          console.warn('ソケット接続エラー:', error.message);
           if (!isMounted) return;
           setSocketStatus('disconnected');
-          // WebSocket接続に失敗しても、Firestoreのリアルタイムリスナーで動作する
         });
 
-        socket.on('newMessage', (message) => {
-          if (!isMounted) return;
-          // Firestoreのリアルタイムリスナーで自動更新されるため、ここでは何もしない
+        socket.on('newMessage', () => {
+          // Firestoreのリアルタイムリスナーで自動処理するので何もしない
         });
-      } catch (error) {
-        console.warn('ソケット初期化エラー（Firestoreで動作します）:', error);
+      } catch (e) {
+        console.warn('ソケット初期化エラー:', e);
         setSocketStatus('disconnected');
       }
     };
 
-    // WebSocket接続を試みる（失敗してもFirestoreで動作する）
-    connectSocket().catch(() => {
-      // エラーは無視（Firestoreのリアルタイムリスナーで動作する）
-    });
+    connectSocketOnce();
 
     return () => {
       isMounted = false;
-      if (socket) {
-        socket.disconnect();
-        socket = null;
-      }
       if (socketRef.current) {
+        // ルーム退室前にleaveイベントを出す
+        if (activeRoomId && currentUser) {
+          socketRef.current.emit('leave', { roomId: activeRoomId });
+        }
         socketRef.current.disconnect();
         socketRef.current = null;
       }
       setSocketStatus('disconnected');
     };
-  }, [currentUser, activeRoomId]);
+    // currentUserが変わった時のみソケットの再生成を許す
+  }, [currentUser]);
+
+  // ルーム切替時join/leaveイベント管理
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !currentUser) {
+      return;
+    }
+
+    // 以前のルームから離脱
+    if (socket.prevRoomId && socket.prevRoomId !== activeRoomId) {
+      socket.emit('leave', { roomId: socket.prevRoomId });
+    }
+
+    // 新しいルームに参加
+    if (activeRoomId) {
+      currentUser.getIdToken().then(token => {
+        socket.emit('join', { token, roomId: activeRoomId });
+        socket.prevRoomId = activeRoomId;
+      });
+    }
+
+    // クリーンアップ時にはleaveイベント（ただしソケット自体は生きる）
+    return () => {
+      if (socket && activeRoomId) {
+        socket.emit('leave', { roomId: activeRoomId });
+      }
+    };
+  }, [activeRoomId, currentUser]);
 
   useEffect(() => {
     if (messageListRef.current) {
@@ -348,10 +374,11 @@ function ChatPage() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!currentUser || !inputValue.trim() || !activeRoomId) {
+    if (!currentUser || !inputValue.trim() || !activeRoomId || isSending) {
       return;
     }
 
+    setIsSending(true);
     const messageText = inputValue.trim();
     setInputValue('');
 
@@ -390,6 +417,8 @@ function ChatPage() {
       console.error('メッセージ送信エラー:', error);
       alert('メッセージの送信に失敗しました');
       setInputValue(messageText); // エラー時は入力値を戻す
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -673,7 +702,10 @@ function ChatPage() {
               onChange={(e) => setInputValue(e.target.value)}
               disabled={!activeRoom}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && activeRoom) {
+                if (e.isComposing || e.nativeEvent.isComposing) {
+                  return; // IME変換確定のEnterは送信しない
+                }
+                if (e.key === 'Enter' && activeRoom && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
                 }

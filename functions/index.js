@@ -379,29 +379,8 @@ exports.searchUsers = onCall(
           console.warn('ユーザー名検索エラー（続行します）:', error);
         }
 
-        // 2. メールアドレスで前方一致検索（mail-addressフィールド）
-        try {
-          const emailQuery = db.collection('user')
-              .where('mail-address', '>=', queryLower)
-              .where('mail-address', '<', queryEnd)
-              .limit(10);
-          
-          const emailSnapshot = await emailQuery.get();
-          emailSnapshot.docs.forEach((doc) => {
-            if (doc.id !== currentUserId && !resultMap.has(doc.id)) {
-              const data = doc.data();
-              const email = (data['mail-address'] || data.email || '').toLowerCase();
-              if (email.startsWith(queryLower)) {
-                resultMap.set(doc.id, {
-                  id: doc.id,
-                  name: data['user-name'] || data.name || 'ユーザー',
-                });
-              }
-            }
-          });
-        } catch (error) {
-          console.warn('メールアドレス検索エラー（続行します）:', error);
-        }
+        // メールアドレスによる検索は脆弱性となるため実行しない（ユーザー列挙対策）
+        // 何も実装しないことで、メールアドレスをヒントとした検索は不可
 
         // 3. ユーザーIDで完全一致検索（短いクエリの場合のみ）
         if (queryLower.length >= 8 && queryLower.length <= 28) {

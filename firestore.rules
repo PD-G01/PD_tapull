@@ -33,10 +33,11 @@ service cloud.firestore {
                        request.resource.data.members != null &&
                        request.auth.uid in request.resource.data.members;
       
-      // ルームの更新（メンバーのみ可能）
+      // ルームの更新（メンバーのみ可能、かつ許可フィールドのみ）
       allow update: if request.auth != null && 
                        resource.data.members != null &&
-                       request.auth.uid in resource.data.members;
+                       request.auth.uid in resource.data.members &&
+                       request.resource.data.keys().hasOnly(['lastMessage', 'updatedAt']);
       
       // メッセージサブコレクション
       match /messages/{messageId} {
