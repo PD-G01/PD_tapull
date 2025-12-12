@@ -184,6 +184,9 @@ function initializeSocketIO(server) {
           createdAt: new Date().toISOString(), // クライアント用に文字列化
         };
 
+        // ルーム内の全クライアントに新しいメッセージを送信
+        io.to(currentRoomId).emit('newMessage', messageWithId);
+
         console.log(`メッセージ送信: ルーム ${currentRoomId}, 送信者 ${currentUserId}`);
       } catch (error) {
         console.error('メッセージ送信エラー:', error);

@@ -38,9 +38,9 @@ service cloud.firestore {
       
       // ルームの更新（メンバーのみ可能、かつ許可フィールドのみ）
       allow update: if request.auth != null && 
-                       resource.data.members != null &&
-                       request.auth.uid in resource.data.members &&
-                       request.resource.data.keys().hasOnly(['lastMessage', 'updatedAt']);
+                  resource.data.members != null &&
+                  request.auth.uid in resource.data.members &&
+                  request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastMessage', 'updatedAt']);
       
       // メッセージサブコレクション
       match /messages/{messageId} {
@@ -68,10 +68,7 @@ service cloud.firestore {
       // プレゼンスサブコレクション（オンライン状態管理）
       match /presence/{userId} {
         // ルームのメンバーは全員のpresence情報を読み取り可能
-        allow read: if request.auth != null && 
-                      get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
-                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
-        
+        allow read: if isRoomMember(userId);
         // 自分のpresenceドキュメントのみ作成可能
         allow create: if request.auth != null && 
                          request.auth.uid == userId &&
