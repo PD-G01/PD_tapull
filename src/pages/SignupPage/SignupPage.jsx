@@ -233,6 +233,7 @@ function SignupPage() {
       // Firestoreにユーザー情報を保存（Firestoreのフィールド構造に合わせる）
       const userData = {
         'user-name': formData.name,
+        'user-name_lowercase': formData.name.toLowerCase(), // 大文字小文字を区別しない検索用
         'mail-address': formData.email,
         'image': avatarURL || '',
         'id': user.uid,

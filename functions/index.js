@@ -358,19 +358,19 @@ exports.searchUsers = onCall(
         // 検索結果を格納するSet（重複を避けるため）
         const resultMap = new Map();
 
-        // 1. ユーザー名で前方一致検索（user-nameフィールド）
+        // 1. ユーザー名で前方一致検索（user-name_lowercaseフィールドを使用して大文字小文字を区別しない検索）
         try {
           const nameQuery = db.collection('user')
-              .where('user-name', '>=', queryLower)
-              .where('user-name', '<', queryEnd)
+              .where('user-name_lowercase', '>=', queryLower)
+              .where('user-name_lowercase', '<', queryEnd)
               .limit(10);
           
           const nameSnapshot = await nameQuery.get();
           nameSnapshot.docs.forEach((doc) => {
             if (doc.id !== currentUserId) {
               const data = doc.data();
-              const userName = (data['user-name'] || data.name || '').toLowerCase();
-              if (userName.startsWith(queryLower)) {
+              const userNameLower = data['user-name_lowercase'] || (data['user-name'] || data.name || '').toLowerCase();
+              if (userNameLower.startsWith(queryLower)) {
                 resultMap.set(doc.id, {
                   id: doc.id,
                   name: data['user-name'] || data.name || 'ユーザー',
