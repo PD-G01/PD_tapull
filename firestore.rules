@@ -43,22 +43,21 @@ service cloud.firestore {
                   request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastMessage', 'updatedAt']);
       
       // メッセージサブコレクション
+            function isRoomMember() {
+        return request.auth != null &&
+               get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
+               request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+      }
+
+      // メッセージサブコレクション
       match /messages/{messageId} {
         // メッセージの読み取り（ルームのメンバーのみ）
-        // サブコレクションのルールは親ドキュメントのルールを継承しないため、
-        // 明示的に親ルームのメンバーチェックが必要
-        function isRoomMember(roomId) {
-          return request.auth != null &&
-                 get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
-                 request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
-        }
-        allow read: if isRoomMember(roomId);
+        allow read: if isRoomMember();
         
         // メッセージの作成（送信者のみ、かつルームのメンバーのみ）
         allow create: if request.auth != null && 
                          request.resource.data.senderId == request.auth.uid &&
-                         get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members != null &&
-                         request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+                         isRoomMember();
         
         // メッセージの更新・削除（送信者のみ）
         allow update, delete: if request.auth != null && 
@@ -68,7 +67,8 @@ service cloud.firestore {
       // プレゼンスサブコレクション（オンライン状態管理）
       match /presence/{userId} {
         // ルームのメンバーは全員のpresence情報を読み取り可能
-        allow read: if isRoomMember(userId);
+        allow read: if isRoomMember();
+
         // 自分のpresenceドキュメントのみ作成可能
         allow create: if request.auth != null && 
                          request.auth.uid == userId &&

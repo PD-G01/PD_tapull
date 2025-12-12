@@ -27,7 +27,7 @@ const getDefaultSocketUrl = () => {
   if (projectId) {
     return `https://us-central1-${projectId}.cloudfunctions.net/chatSocket`;
   }
-  return 'http://localhost:5001/chatSocket';
+  return `http://127.0.0.1:5001/${projectId}/us-central1/chatSocket`;
 };
 
 const CHAT_SOCKET_URL =
