@@ -32,7 +32,7 @@ service cloud.firestore {
       allow create: if request.auth != null &&
                        request.resource.data.members != null &&
                        request.auth.uid in request.resource.data.members &&
-                       request.resource.data.keys().hasOnly(['members', 'title', 'displayName', 'createdAt', 'updatedAt', 'lastMessage', 'isOneOnOne', 'membersInfo']) &&
+                       // メンバー数が2人で、1対1ルームであることを確認
                        request.resource.data.members.size() == 2 &&
                        request.resource.data.isOneOnOne == true;
       

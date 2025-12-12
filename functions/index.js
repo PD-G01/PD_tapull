@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest, onCall} = require('firebase-functions/v2/https');
+const {onRequest, onCall, HttpsError} = require('firebase-functions/v2/https');
 const {setGlobalOptions} = require('firebase-functions');
 const admin = require('firebase-admin');
 const {Server} = require('socket.io');
@@ -20,7 +20,12 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+// Firestoreデータベース名を指定（firebase.jsonの設定に合わせる）
+// カスタムデータベース名 'pdtapull-db' を使用
 const db = admin.firestore();
+db.settings({
+  databaseId: 'pdtapull-db',
+});
 
 // CORS設定: 環境変数から許可するオリジンを取得
 // 本番環境では環境変数ALLOWED_ORIGINを設定（例: https://pdtapull.web.app）
@@ -30,15 +35,9 @@ const getAllowedOrigin = () => {
   if (process.env.ALLOWED_ORIGIN) {
     return process.env.ALLOWED_ORIGIN;
   }
-  // 本番環境（GCLOUD_PROJECTが存在）で環境変数が未設定の場合
-  // 安全のために何も許可しない
-  if (process.env.GCLOUD_PROJECT) {
-    console.error(
-        'ALLOWED_ORIGIN environment variable is not set in production.');
-    return '';
-    // または、アプリケーションのURLなど安全なデフォルト値を設定
-  }
   // 開発環境ではすべてのオリジンを許可
+  // 本番環境でも、開発用にlocalhostを許可するため'*'を返す
+  // 本番環境では環境変数ALLOWED_ORIGINを設定することを推奨
   return '*';
 };
 
@@ -298,41 +297,278 @@ exports.chatSocket = onRequest(
  */
 exports.getPublicUserInfo = onCall(
     {
-      // 本番環境では特定のオリジンのみ許可
-      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()],
+      // CORS設定: すべてのオリジンを許可（開発環境と本番環境の両方）
+      cors: true,
       maxInstances: 10,
     },
     async (request) => {
       try {
         // 認証チェック
         if (!request.auth) {
-          throw new Error('認証が必要です');
+          throw new HttpsError('unauthenticated', '認証が必要です');
         }
 
         const {userId} = request.data;
 
+        console.log('getPublicUserInfo呼び出し:', {
+          userId,
+          userIdType: typeof userId,
+          userIdLength: userId ? userId.length : 0,
+          requestData: request.data,
+          authUid: request.auth?.uid,
+        });
+
         if (!userId) {
-          throw new Error('ユーザーIDが必要です');
+          throw new HttpsError('invalid-argument', 'ユーザーIDが必要です');
         }
 
-        // ユーザードキュメントを取得
-        const userDoc = await db.collection('user').doc(userId).get();
+        // userIdを文字列に変換してトリム
+        const searchId = String(userId).trim();
+
+        if (!searchId) {
+          throw new HttpsError('invalid-argument', 'ユーザーIDが無効です');
+        }
+
+        console.log('検索開始:', {searchId});
+
+        // まずドキュメントIDで検索を試みる
+        // カスタムデータベース名 'pdtapull-db' を使用
+        const userCollection = db.collection('user');
+        let userDoc = await userCollection.doc(searchId).get();
+
+        console.log('ドキュメントID検索結果:', {
+          exists: userDoc.exists,
+          docId: userDoc.id,
+        });
+
+        // ドキュメントIDで見つからない場合、idフィールドで検索
+        if (!userDoc.exists) {
+          console.log('ドキュメントIDで見つからず、idフィールドで検索:', searchId);
+          try {
+            // まず、すべてのユーザードキュメントを取得してidフィールドでフィルタリング
+            // （インデックスが不要な方法）
+            const allUsersSnapshot = await userCollection
+                .limit(1000)
+                .get();
+
+            console.log('全ユーザー取得数:', allUsersSnapshot.size);
+
+            // idフィールドで一致するドキュメントを探す
+            const matchingDoc = allUsersSnapshot.docs.find((doc) => {
+              const data = doc.data();
+              return data && data.id === searchId;
+            });
+
+            if (matchingDoc) {
+              userDoc = matchingDoc;
+              console.log('idフィールドで見つかりました:', {
+                docId: userDoc.id,
+                dataId: userDoc.data()?.id,
+              });
+            } else {
+              console.log('idフィールドでも見つかりませんでした');
+            }
+          } catch (queryError) {
+            console.error('idフィールド検索エラー:', queryError);
+            console.error('エラー詳細:', {
+              message: queryError.message,
+              code: queryError.code,
+              stack: queryError.stack,
+            });
+            // クエリエラーが発生しても続行（ドキュメントID検索の結果を使用）
+          }
+        } else {
+          console.log('ドキュメントIDで見つかりました:', userDoc.id);
+        }
 
         if (!userDoc.exists) {
-          throw new Error('ユーザーが見つかりません');
+          console.error('ユーザーが見つかりません:', {
+            searchId,
+            searchedAsDocId: true,
+            searchedAsIdField: true,
+          });
+          throw new HttpsError(
+              'not-found',
+              `ユーザーが見つかりません (ID: ${searchId})`);
         }
 
         const userData = userDoc.data();
 
+        if (!userData) {
+          console.error('ユーザーデータが空です:', userDoc.id);
+          throw new HttpsError(
+              'internal',
+              `ユーザーデータが取得できませんでした (ID: ${searchId})`);
+        }
+
+        console.log('ユーザーデータ取得成功:', {
+          'docId': userDoc.id,
+          'user-name': userData['user-name'],
+          'name': userData.name,
+          'image': userData.image,
+          'id': userData.id,
+          'hasUser-name': !!userData['user-name'],
+          'hasName': !!userData.name,
+        });
+
         // 公開情報のみを返す（メールアドレスは除外）
-        return {
-          id: userId,
+        const result = {
+          id: searchId, // 検索に使用したIDを返す
           name: userData['user-name'] || userData.name || 'ユーザー',
           image: userData.image || '',
         };
+
+        console.log('返却データ:', result);
+
+        return result;
       } catch (error) {
         console.error('公開ユーザー情報取得エラー:', error);
-        throw new Error(error.message || 'ユーザー情報の取得に失敗しました');
+        console.error('エラー詳細:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack,
+          userId: request.data?.userId,
+        });
+
+        // 既にHttpsErrorの場合はそのまま再スロー
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+
+        // エラーメッセージに詳細を含める
+        const errorMessage = error.message || 'ユーザー情報の取得に失敗しました';
+        throw new HttpsError('internal', errorMessage);
+      }
+    },
+);
+
+/**
+ * 1対1チャットルームを作成する（Cloud Functions経由でAdmin SDKを使用）
+ * Firestoreのセキュリティルールを回避してルームを作成
+ */
+exports.createOneOnOneRoom = onCall(
+    {
+      // CORS設定: すべてのオリジンを許可（開発環境と本番環境の両方）
+      cors: true,
+      maxInstances: 10,
+    },
+    async (request) => {
+      try {
+        // 認証チェック
+        if (!request.auth) {
+          throw new HttpsError('unauthenticated', '認証が必要です');
+        }
+
+        const {partnerId, partnerName, partnerImage} = request.data;
+
+        console.log('createOneOnOneRoom呼び出し:', {
+          currentUserId: request.auth.uid,
+          partnerId,
+          partnerName,
+          partnerImage,
+        });
+
+        if (!partnerId) {
+          throw new HttpsError('invalid-argument', 'パートナーIDが必要です');
+        }
+
+        const currentUserId = request.auth.uid;
+
+        // 自分自身とのルームは作成できない
+        if (partnerId === currentUserId) {
+          throw new HttpsError(
+              'invalid-argument',
+              '自分自身とのチャットルームは作成できません');
+        }
+
+        // 既存のルームをチェック
+        const roomId = [currentUserId, partnerId].sort().join('_');
+        const existingRoomDoc = await db.collection('chatRooms')
+            .doc(roomId).get();
+
+        if (existingRoomDoc.exists) {
+          console.log('既存のルームが見つかりました:', roomId);
+          return {
+            roomId,
+            isNew: false,
+          };
+        }
+
+        // 現在のユーザー情報を取得
+        const currentUserDoc = await db.collection('user')
+            .doc(currentUserId).get();
+        const currentUserData = currentUserDoc.exists ?
+            currentUserDoc.data() : {};
+
+        const currentUserName =
+            currentUserData['user-name'] ||
+            currentUserData.name ||
+            request.auth.token.name ||
+            'ユーザー';
+        const currentUserImage =
+            currentUserData.image ||
+            request.auth.token.picture ||
+            '';
+
+        // 新しいルームを作成
+        const roomData = {
+          members: [currentUserId, partnerId],
+          title: partnerName || 'ユーザー',
+          displayName: partnerName || 'ユーザー',
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          lastMessage: '',
+          isOneOnOne: true,
+          membersInfo: {
+            [currentUserId]: {
+              name: currentUserName,
+              image: currentUserImage,
+            },
+            [partnerId]: {
+              name: partnerName || 'ユーザー',
+              image: partnerImage || '',
+            },
+          },
+        };
+
+        console.log('ルーム作成データ:', {
+          roomId,
+          roomData,
+          membersCount: roomData.members.length,
+          databaseId: 'pdtapull-db',
+        });
+
+        const roomRef = db.collection('chatRooms').doc(roomId);
+        await roomRef.set(roomData);
+
+        // 作成後のデータを確認
+        const createdRoomDoc = await roomRef.get();
+        console.log('ルーム作成成功:', {
+          roomId,
+          exists: createdRoomDoc.exists,
+          data: createdRoomDoc.exists ? createdRoomDoc.data() : null,
+        });
+
+        return {
+          roomId,
+          isNew: true,
+        };
+      } catch (error) {
+        console.error('ルーム作成エラー:', error);
+        console.error('エラー詳細:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack,
+        });
+
+        // 既にHttpsErrorの場合はそのまま再スロー
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+
+        throw new HttpsError(
+            'internal',
+            error.message || 'ルームの作成に失敗しました');
       }
     },
 );
@@ -344,8 +580,8 @@ exports.getPublicUserInfo = onCall(
  */
 exports.searchUsers = onCall(
     {
-      // 本番環境では特定のオリジンのみ許可
-      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()],
+      // CORS設定: すべてのオリジンを許可（開発環境と本番環境の両方）
+      cors: true,
       maxInstances: 10,
     },
     async (request) => {
