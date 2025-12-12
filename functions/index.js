@@ -12,8 +12,8 @@ const {setGlobalOptions} = require('firebase-functions');
 const admin = require('firebase-admin');
 const {Server} = require('socket.io');
 
-// Firestoreクエリ用のインポート
-const {FieldPath} = admin.firestore;
+// Firestoreクエリ用のインポート（必要に応じて使用）
+// const {FieldPath} = admin.firestore;
 
 // Firebase Admin初期化
 if (!admin.apps.length) {
@@ -30,10 +30,13 @@ const getAllowedOrigin = () => {
   if (process.env.ALLOWED_ORIGIN) {
     return process.env.ALLOWED_ORIGIN;
   }
-  // 本番環境（GCLOUD_PROJECTが存在）で環境変数が未設定の場合は、安全のために何も許可しない
+  // 本番環境（GCLOUD_PROJECTが存在）で環境変数が未設定の場合
+  // 安全のために何も許可しない
   if (process.env.GCLOUD_PROJECT) {
-    console.error('ALLOWED_ORIGIN environment variable is not set in production.');
-    return ''; // または、アプリケーションのURLなど安全なデフォルト値を設定
+    console.error(
+        'ALLOWED_ORIGIN environment variable is not set in production.');
+    return '';
+    // または、アプリケーションのURLなど安全なデフォルト値を設定
   }
   // 開発環境ではすべてのオリジンを許可
   return '*';
@@ -106,7 +109,7 @@ function initializeSocketIO(server) {
             .doc(roomId)
             .collection('presence')
             .doc(currentUserId);
-        
+
         await presenceRef.set({
           userId: currentUserId,
           connectedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -132,7 +135,9 @@ function initializeSocketIO(server) {
         // 以前のルームから確実に離脱させる (join 失敗時を含む)
         if (currentRoomId) {
           socket.leave(currentRoomId);
-          console.log(`ユーザー ${currentUserId || 'unknown'} が${currentRoomId} から強制的に退出`);
+          console.log(
+              `ユーザー ${currentUserId || 'unknown'} が` +
+              `${currentRoomId} から強制的に退出`);
           currentRoomId = null;
         }
       }
@@ -206,7 +211,7 @@ function initializeSocketIO(server) {
               .doc(currentRoomId)
               .collection('presence')
               .doc(currentUserId);
-          
+
           await presenceRef.delete();
 
           // ルーム内の他のユーザーに通知
@@ -232,7 +237,8 @@ function initializeSocketIO(server) {
 // WebSocketサーバー用のHTTP関数
 exports.chatSocket = onRequest(
     {
-      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
+      // 本番環境では特定のオリジンのみ許可
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()],
       maxInstances: 10,
     },
     (req, res) => {
@@ -292,7 +298,8 @@ exports.chatSocket = onRequest(
  */
 exports.getPublicUserInfo = onCall(
     {
-      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
+      // 本番環境では特定のオリジンのみ許可
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()],
       maxInstances: 10,
     },
     async (request) => {
@@ -337,7 +344,8 @@ exports.getPublicUserInfo = onCall(
  */
 exports.searchUsers = onCall(
     {
-      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()], // 本番環境では特定のオリジンのみ許可
+      // 本番環境では特定のオリジンのみ許可
+      cors: getAllowedOrigin() === '*' ? true : [getAllowedOrigin()],
       maxInstances: 10,
     },
     async (request) => {
@@ -354,25 +362,29 @@ exports.searchUsers = onCall(
         }
 
         const queryLower = searchQuery.toLowerCase().trim();
-        //const queryUpper = queryLower.charAt(0).toUpperCase() + queryLower.slice(1);
-        const nextChar = String.fromCharCode(queryLower.charCodeAt(queryLower.length - 1) + 1);
+        // const queryUpper = queryLower.charAt(0).toUpperCase() +
+        //                    queryLower.slice(1);
+        const nextChar = String.fromCharCode(
+            queryLower.charCodeAt(queryLower.length - 1) + 1);
         const queryEnd = queryLower.slice(0, -1) + nextChar;
 
         // 検索結果を格納するSet（重複を避けるため）
         const resultMap = new Map();
 
-        // 1. ユーザー名で前方一致検索（user-name_lowercaseフィールドを使用して大文字小文字を区別しない検索）
+        // 1. ユーザー名で前方一致検索
+        // user-name_lowercaseフィールドを使用して大文字小文字を区別しない
         try {
           const nameQuery = db.collection('user')
               .where('user-name_lowercase', '>=', queryLower)
               .where('user-name_lowercase', '<', queryEnd)
               .limit(10);
-          
+
           const nameSnapshot = await nameQuery.get();
           nameSnapshot.docs.forEach((doc) => {
             if (doc.id !== currentUserId) {
               const data = doc.data();
-              const userNameLower = data['user-name_lowercase'] || (data['user-name'] || data.name || '').toLowerCase();
+              const userNameLower = data['user-name_lowercase'] ||
+                  (data['user-name'] || data.name || '').toLowerCase();
               if (userNameLower.startsWith(queryLower)) {
                 resultMap.set(doc.id, {
                   id: doc.id,
@@ -391,8 +403,10 @@ exports.searchUsers = onCall(
         // 3. ユーザーIDで完全一致検索（短いクエリの場合のみ）
         if (queryLower.length >= 8 && queryLower.length <= 28) {
           try {
-            const userDoc = await db.collection('user').doc(queryLower).get();
-            if (userDoc.exists && userDoc.id !== currentUserId && !resultMap.has(userDoc.id)) {
+            const userDoc = await db.collection('user')
+                .doc(queryLower).get();
+            if (userDoc.exists && userDoc.id !== currentUserId &&
+                !resultMap.has(userDoc.id)) {
               const data = userDoc.data();
               resultMap.set(userDoc.id, {
                 id: userDoc.id,
