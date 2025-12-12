@@ -129,6 +129,12 @@ function initializeSocketIO(server) {
       } catch (error) {
         console.error('認証エラー:', error);
         socket.emit('error', {message: '認証に失敗しました'});
+        // 以前のルームから確実に離脱させる (join 失敗時を含む)
+        if (currentRoomId) {
+          socket.leave(currentRoomId);
+          console.log(`ユーザー ${currentUserId || 'unknown'} が${currentRoomId} から強制的に退出`);
+          currentRoomId = null;
+        }
       }
     });
 

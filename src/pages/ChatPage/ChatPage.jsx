@@ -157,7 +157,7 @@ function ChatPage() {
 
       checkAndCreateRoom();
     }
-  }, [currentUser, searchParams, location.state, navigate]);
+  }, [currentUser, searchParams, location.state?.userId, navigate]);
 
   useEffect(() => {
     if (!currentUser) {
