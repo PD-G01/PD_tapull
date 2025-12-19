@@ -56,6 +56,7 @@ service cloud.firestore {
     }
     
     // その他すべて拒否（セキュリティの基本）
+
     match /{document=**} {
       allow read, write: if false;
     }
