@@ -185,7 +185,7 @@ function MyInformationPage() {
     setErrors({});
 
     try {
-      let avatarURL = formData.avatar ? null : (avatarPreview || currentUser.photoURL || '');
+      let finalAvatarURL = avatarPreview || currentUser.photoURL || '';
 
       // アバター画像をアップロード（新しい画像が選択されている場合）
       if (formData.avatar) {
@@ -200,9 +200,10 @@ function MyInformationPage() {
             setTimeout(() => reject(new Error('画像アップロードがタイムアウトしました')), 10000)
           );
 
-          avatarURL = await Promise.race([uploadPromise, timeoutPromise]);
+          finalAvatarURL = await Promise.race([uploadPromise, timeoutPromise]);
         } catch (storageError) {
           console.warn('画像アップロードエラー（続行します）:', storageError);
+          setErrors(prev => ({ ...prev, avatar: '画像のアップロードに失敗しました。' }));
         }
       }
 
@@ -210,7 +211,7 @@ function MyInformationPage() {
       try {
         await updateProfile(currentUser, {
           displayName: formData.name,
-          photoURL: avatarURL || currentUser.photoURL || '',
+          photoURL: finalAvatarURL,
         });
       } catch (profileError) {
         console.warn('プロフィール更新エラー（続行します）:', profileError);
@@ -221,7 +222,7 @@ function MyInformationPage() {
         'user-name': formData.name,
         'user-name_lowercase': formData.name.toLowerCase(),
         'mail-address': formData.email,
-        'image': avatarURL || avatarPreview || '',
+        'image': finalAvatarURL,
         'id': currentUser.uid,
       };
 
