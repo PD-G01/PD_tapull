@@ -345,28 +345,21 @@ exports.getPublicUserInfo = onCall(
         if (!userDoc.exists) {
           console.log('ドキュメントIDで見つからず、idフィールドで検索:', searchId);
           try {
-            // まず、すべてのユーザードキュメントを取得してidフィールドでフィルタリング
-            // （インデックスが不要な方法）
-            const allUsersSnapshot = await userCollection
-                .limit(1000)
+            // idフィールドに対して where クエリを実行（より効率的）
+            const querySnapshot = await userCollection
+                .where('id', '==', searchId)
+                .limit(1)
                 .get();
 
-            console.log('全ユーザー取得数:', allUsersSnapshot.size);
-
-            // idフィールドで一致するドキュメントを探す
-            const matchingDoc = allUsersSnapshot.docs.find((doc) => {
-              const data = doc.data();
-              return data && data.id === searchId;
-            });
-
-            if (matchingDoc) {
+            if (!querySnapshot.empty) {
+              const matchingDoc = querySnapshot.docs[0];
               userDoc = matchingDoc;
-              console.log('idフィールドで見つかりました:', {
+              console.log('idフィールドのクエリで見つかりました:', {
                 docId: userDoc.id,
                 dataId: userDoc.data()?.id,
               });
             } else {
-              console.log('idフィールドでも見つかりませんでした');
+              console.log('idフィールドのクエリでも見つかりませんでした');
             }
           } catch (queryError) {
             console.error('idフィールド検索エラー:', queryError);
