@@ -8,6 +8,7 @@ import InformationPage from './pages/InformationPage/InformationPage';
 import SettingPage from './pages/SettingPage/SettingPage';
 import TermsPage from './pages/TermsPage/TermsPage';
 import PrivacyPage from './pages/PrivacyPage/PrivacyPage';
+import ProvidePage from './pages/ProvidePage/ProvidePage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/setting" element={<SettingPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/provide" element={<ProvidePage />} />
       </Routes>
     </Router>
   );
