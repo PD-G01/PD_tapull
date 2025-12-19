@@ -1,0 +1,148 @@
+:root{
+    --color-primary: #ef4444;
+    --color-card-light: #ffffff;
+    --color-card-dark: #0f172a;
+    --color-text-primary: #111827;
+    --color-text-secondary-light: #6b7280;
+    --color-text-secondary-dark: #9ca3af;
+    --color-bg: #f8fafc;
+}
+
+/* ページ全体 */
+main {
+    background: transparent;
+    color: var(--color-text-primary);
+    font-family: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* 戻るリンク */
+.back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+.back-link .material-icons{
+    font-size: 1.1rem;
+    vertical-align: middle;
+}
+
+/* flow-section は HomePage.css と合わせる */
+.flow-section {
+    background-color: var(--color-card-light);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+    padding: 1.25rem;
+}
+.dark-mode .flow-section {
+    background-color: var(--color-card-dark);
+}
+
+/* 見出し / 説明 */
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+}
+.feature-description {
+    color: var(--color-text-secondary-light);
+    margin: 0 0 1rem 0;
+}
+
+/* section eyebrow (ラベル小見出し) */
+.section-eyebrow {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary-light);
+    margin-bottom: 0.35rem;
+    display: block;
+}
+
+/* 入力要素統一 */
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(15,23,42,0.06);
+    background: transparent;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+}
+input[type="file"] {
+    padding: 0.25rem 0;
+    border: none;
+}
+textarea { resize: vertical; }
+
+/* フォーカス */
+input:focus, textarea:focus {
+    outline: 2px solid rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.25);
+}
+
+/* 画像プレビューカード */
+.feature-card {
+    background-color: var(--color-card-light);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+    overflow: hidden;
+}
+.feature-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 既存のボタンスタイル (Provide.css に元からあるものと統合) */
+.primary-btn {
+    background-color: var(--color-primary);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .12s ease;
+}
+.primary-btn:active { transform: translateY(1px); }
+.primary-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.outline-btn {
+    background: transparent;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* フォーム内のボタン配置 */
+form > div[style*="display: flex"] {
+    gap: 0.5rem;
+}
+
+/* メッセージ */
+form p, .message {
+    margin-top: 0.75rem;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 640px) {
+    .flow-section { padding: 1rem; border-radius: 10px; }
+    .feature-title { font-size: 1.125rem; }
+    input, textarea { font-size: 0.95rem; padding: 0.55rem; }
+}
+
+@media (min-width: 1024px) {
+    .flow-section { padding: 2rem; }
+    .feature-title { font-size: 1.35rem; }
+}

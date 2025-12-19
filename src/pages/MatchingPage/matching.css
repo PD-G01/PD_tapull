@@ -16,11 +16,19 @@
     text-decoration: none;
     transition: color 200ms;
 }
+
 .back-link:hover {
     color: var(--color-primary);
 }
-.back-link .material-icons {
-    font-size: 1.125rem;
+
+/* --- 提供者はこちらリンク（維持） --- */
+.desktop-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 /* --- モバイル: Tinder風カード --- */
@@ -38,187 +46,53 @@
     box-shadow: 0 20px 40px rgba(17, 24, 39, 0.15);
 }
 
-.match-card-image {
-    position: relative;
-    border-radius: 24px;
-    overflow: hidden;
-    aspect-ratio: 3 / 4;
-}
-
-.match-card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.match-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
-    display: flex;
-    align-items: flex-end;
-    padding: 1.5rem;
-}
-
-.match-card-basic {
-    color: #fff;
-}
-
-.match-name-line {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.match-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-}
-
-.match-age {
-    font-size: 1.4rem;
-}
-
-.verified-dot .material-icons {
-    font-size: 1.125rem;
-    color: #60A5FA;
-    vertical-align: middle;
-}
-
-.match-role {
-    font-size: 1rem;
-    margin-top: 0.25rem;
-    opacity: 0.85;
-}
-
-.match-org,
-.match-location,
-.match-distance {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.95rem;
-    margin-top: 0.3rem;
-    opacity: 0.9;
-}
-
-.match-org .material-icons,
-.match-location .material-icons,
-.match-distance .material-icons {
-    font-size: 1rem;
-}
-
-.match-need {
-    margin-top: 1.25rem;
-    font-size: 0.95rem;
-    color: var(--color-text-secondary-light);
-}
-
-.match-tags {
-    margin-top: 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.match-tag {
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    background-color: var(--color-gray-100);
-    font-size: 0.8rem;
-}
-
-.match-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-}
-
-.match-action {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-gray-100);
-    color: #374151;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
-}
-
-.match-action .material-icons {
-    font-size: 1.4rem;
-}
-
-.match-action.rewind { background-color: #FDE68A; }
-.match-action.dislike { background-color: #FECACA; }
-.match-action.info { background-color: #E5E7EB; }
-.match-action.like { background-color: #FCD34D; color: #DC2626; }
-.match-action.flash { background-color: #DDD6FE; color: #6D28D9; }
-
-/* --- デスクトップ: 一覧 --- */
+/* --- デスクトップ: 一覧カード（フラット版） --- */
 .desktop-match-section {
     display: none;
     margin-top: 3rem;
 }
 
-.desktop-match-header {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.desktop-action-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    text-decoration: none;
-}
-
 .desktop-profile-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
 }
 
 .desktop-profile-card {
-    background-color: var(--color-card-light);
-    border-radius: 18px;
+    background-color: #ffffff;
+    border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 浮き出しを削除し、影の変化のみに抑制 */
+.desktop-profile-card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .desktop-profile-header {
     display: flex;
     gap: 1rem;
     align-items: center;
+    margin-bottom: 1rem;
 }
 
-.desktop-profile-header img {
-    width: 72px;
-    height: 72px;
-    border-radius: 16px;
+.desktop-profile-header img,
+.no-image-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
     object-fit: cover;
 }
 
 .desktop-profile-name {
-    display: flex;
-    align-items: baseline;
-    gap: 0.35rem;
     font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.desktop-profile-role {
-    font-size: 0.95rem;
-    color: var(--color-text-secondary-light);
+    font-weight: 700;
+    color: #1e293b;
 }
 
 .desktop-profile-loc {
@@ -226,61 +100,52 @@
     align-items: center;
     gap: 0.25rem;
     font-size: 0.9rem;
-    color: var(--color-text-secondary-light);
-}
-
-.desktop-profile-loc .material-icons {
-    font-size: 1rem;
+    color: #64748b;
 }
 
 .desktop-profile-need {
-    margin-top: 1rem;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
     font-size: 0.95rem;
-    color: var(--color-text-light);
-}
-
-.desktop-profile-tags {
-    margin-top: 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
 }
 
 .desktop-profile-tags span {
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    background-color: var(--color-gray-100);
-    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
 }
 
 .desktop-profile-actions {
-    margin-top: 1.25rem;
     display: flex;
     gap: 0.75rem;
 }
 
-.outline-btn,
-.primary-btn {
+.outline-btn {
     flex: 1;
-    padding: 0.65rem 1rem;
-    border-radius: 10px;
-    font-weight: 600;
-    border: 1px solid transparent;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: white;
     cursor: pointer;
 }
 
-.outline-btn {
-    border-color: var(--color-gray-300);
-    background-color: transparent;
-    color: var(--color-text-light);
-}
-
 .primary-btn {
-    background-color: var(--color-primary);
-    color: #fff;
+    flex: 1.5;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #ef4444;
+    color: white;
+    cursor: pointer;
 }
 
-/* --- レスポンシブ --- */
+/* --- レスポンシブ（元に戻した設定） --- */
 @media (max-width: 640px) {
     /* スマホ表示時: ヘッダーとフッターを非表示 */
     .container > .header,
@@ -314,12 +179,6 @@
     }
 }
 
-@media (min-width: 768px) {
-    .match-card {
-        max-width: 520px;
-    }
-}
-
 @media (min-width: 1024px) {
     .mobile-match-section {
         display: none;
@@ -330,7 +189,7 @@
     }
 
     .desktop-match-header {
-        flex-direction: row;
+        display: flex;
         align-items: flex-end;
         justify-content: space-between;
     }

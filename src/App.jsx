@@ -10,6 +10,7 @@ import ChatPage from './pages/ChatPage/ChatPage';
 import TermsPage from './pages/TermsPage/TermsPage';
 import PrivacyPage from './pages/PrivacyPage/PrivacyPage';
 import MyInformationPage from './pages/MyInformationPage/MyInformationPage';
+import ProvidePage from './pages/ProvidePage/ProvidePage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/my-information" element={<MyInformationPage />} />
+        <Route path="/provide" element={<ProvidePage />} />
       </Routes>
     </Router>
   );
