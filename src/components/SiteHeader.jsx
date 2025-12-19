@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../utils/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../utils/firebase';
 
 function SiteHeader({
   title = '食PULL',
@@ -11,11 +13,32 @@ function SiteHeader({
 }) {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userPhotoURL, setUserPhotoURL] = useState(null);
 
-  // 認証状態を監視
+  // 認証状態とユーザー情報を監視
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setIsAuthenticated(!!user);
+      
+      if (user) {
+        // Firestoreからユーザー情報を取得してアイコンを設定
+        try {
+          const userDocRef = doc(db, 'user', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            setUserPhotoURL(data.image || user.photoURL || null);
+          } else {
+            setUserPhotoURL(user.photoURL || null);
+          }
+        } catch (error) {
+          console.error('ユーザー情報取得エラー:', error);
+          setUserPhotoURL(user.photoURL || null);
+        }
+      } else {
+        setUserPhotoURL(null);
+      }
     });
 
     return () => unsubscribe();
@@ -30,6 +53,10 @@ function SiteHeader({
     }
   };
 
+  const handleProfileClick = () => {
+    navigate('/my-information');
+  };
+
   return (
     <header className={className}>
       <div className="header-content">
@@ -38,15 +65,34 @@ function SiteHeader({
           <h1 className="logo-title">{title}</h1>
         </div>
         {isAuthenticated && (
-          <button 
-            type="button" 
-            className="logout-button-header"
-            onClick={handleLogout}
-            aria-label="ログアウト"
-          >
-            <span className="material-icons">logout</span>
-            <span className="logout-text">ログアウト</span>
-          </button>
+          <div className="header-actions">
+            <button 
+              type="button" 
+              className="profile-icon-button"
+              onClick={handleProfileClick}
+              aria-label="プロフィール設定"
+              title="プロフィール設定"
+            >
+              {userPhotoURL ? (
+                <img 
+                  src={userPhotoURL} 
+                  alt="プロフィール" 
+                  className="profile-icon-img"
+                />
+              ) : (
+                <span className="material-icons">account_circle</span>
+              )}
+            </button>
+            <button 
+              type="button" 
+              className="logout-button-header"
+              onClick={handleLogout}
+              aria-label="ログアウト"
+            >
+              <span className="material-icons">logout</span>
+              <span className="logout-text">ログアウト</span>
+            </button>
+          </div>
         )}
       </div>
       {subtitle && <p className="logo-subtitle">{subtitle}</p>}

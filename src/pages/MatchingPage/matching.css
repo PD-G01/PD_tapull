@@ -8,10 +8,29 @@
   --match-card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
-/* --- レイアウト調整 --- */
-.container.match-page-container {
-  max-width: 1200px;
-  margin: 0 auto;
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 2.5rem auto 3rem;
+    color: var(--color-text-secondary-light);
+    text-decoration: none;
+    transition: color 200ms;
+}
+
+.back-link:hover {
+    color: var(--color-primary);
+}
+
+/* --- 提供者はこちらリンク（維持） --- */
+.desktop-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 .section-eyebrow {
@@ -32,404 +51,153 @@
   font-weight: 500;
   transition: color 0.2s;
 }
-.back-link:hover {
-  color: var(--match-primary);
-}
 
-/* --- モバイル専用表示制御 --- */
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
 
-/* =========================================
-   モバイルデザイン (調整版)
-   ========================================= */
-.mobile-match-section {
-  position: fixed;
-  inset: 0;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom); /* iPhone下部のバー対策 */
-}
-
-/* カードを中央に配置するためのコンテナ */
-.card-container {
-  flex: 1; /* 残りのスペースを使用 */
-  display: flex;
-  align-items: center; /* 上下中央 */
-  justify-content: center; /* 左右中央 */
-  padding: 1rem;
-  overflow: hidden;
-}
-
-.match-card {
-  position: relative;
-  width: 100%;
-  max-width: 360px; /* カードの最大幅を制限 */
-  aspect-ratio: 3 / 4; /* カードの比率を固定（縦長になりすぎない） */
-  max-height: 70vh; /* 画面高の70%を超えないように制限 */
-  
-  background-color: #fff;
-  border-radius: 20px; /* 全体の角を丸く */
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-
-/* 画像エリア */
-.match-card-image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.match-card-image-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-
-.match-card-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom, 
-    rgba(0,0,0,0) 50%, 
-    rgba(0,0,0,0.5) 70%, 
-    rgba(0,0,0,0.9) 100%
-  );
-  pointer-events: none;
-}
-
-/* カード内のテキスト情報 */
-.match-card-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 1.25rem;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.match-name-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.match-name {
-  font-size: 1.75rem; /* 少し文字サイズを調整 */
-  font-weight: 800;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.match-age {
-  font-size: 1.4rem;
-  font-weight: 400;
-}
-
-.verified-badge .material-icons {
-  font-size: 1.2rem;
-  color: #3B82F6;
-  background: #fff;
-  border-radius: 50%;
-}
-
-.match-role {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin-bottom: 0.25rem;
-}
-
-.match-meta-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-bottom: 0.75rem;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-.meta-item .material-icons { font-size: 1rem; }
-
-/* 詳細情報 */
-.match-details {
-  border-top: 1px solid rgba(255,255,255,0.3);
-  padding-top: 0.75rem;
-}
-
-.match-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.match-tag {
-  background-color: rgba(255,255,255,0.25);
-  backdrop-filter: blur(4px);
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.match-need-text {
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* 2行以上は省略 */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 操作ボタンエリア */
-.match-action-bar {
-  background-color: transparent; /* 背景なし */
-  padding: 0 1rem 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
-
-.action-btn {
-  border: none;
-  border-radius: 50%;
-  background-color: #1F2937;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.1s, background-color 0.2s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  width: 48px;
-  height: 48px;
-}
-
-.action-btn .material-icons {
-  font-size: 1.3rem;
-}
-
-.action-btn:active { transform: scale(0.92); }
-
-.action-btn.rewind { color: #F59E0B; }
-.action-btn.dislike { 
-  color: #EF4444; 
-  background-color: transparent; 
-  border: 2px solid #EF4444; 
-  width: 68px; 
-  height: 68px; 
-  margin: 0 0.5rem;
-}
-.action-btn.dislike .material-icons { font-size: 2.25rem; }
-
-.action-btn.super-like { color: #3B82F6; }
-
-.action-btn.like { 
-  color: #10B981; 
-  background-color: transparent; 
-  border: 2px solid #10B981; 
-  width: 68px; 
-  height: 68px; 
-  margin: 0 0.5rem;
-}
-.action-btn.like .material-icons { font-size: 2.25rem; }
-
-.action-btn.flash { color: #8B5CF6; }
-
-/* =========================================
-   デスクトップデザイン
-   ========================================= */
+/* --- デスクトップ: 一覧カード（フラット版） --- */
 .desktop-match-section {
-  display: none;
-  padding: 2rem 0;
+    display: none;
+    margin-top: 3rem;
 }
 
-@media (min-width: 1024px) {
-  .mobile-match-section { display: none; }
-  .desktop-match-section { display: block; }
-  
-  .desktop-match-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-gray-200);
-  }
-
-  .desktop-action-link {
-    font-weight: 700;
-    color: var(--match-primary);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  
-  .desktop-profile-grid {
+.desktop-profile-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-  }
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
 .desktop-profile-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: var(--match-card-shadow);
-  border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  display: flex;
-  flex-direction: column;
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
 }
 
+/* 浮き出しを削除し、影の変化のみに抑制 */
 .desktop-profile-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 30px rgba(0,0,0,0.12);
-  border-color: var(--match-primary);
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.card-top {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+.desktop-profile-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.card-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  object-fit: cover;
-  background-color: var(--color-gray-200);
+.desktop-profile-header img,
+.no-image-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
 }
 
-.card-header-info { flex: 1; }
-
-.card-name-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-bottom: 0.2rem;
+.desktop-profile-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
 }
 
-.card-name-row h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--match-text-main);
+.desktop-profile-loc {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: #64748b;
 }
 
-.card-age {
-  color: var(--match-text-sub);
-  font-size: 1rem;
+.desktop-profile-need {
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex-grow: 1;
 }
 
-.card-role {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin: 0;
+.desktop-profile-tags span {
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
 }
 
-.card-org {
-  font-size: 0.85rem;
-  color: var(--match-text-sub);
-  margin: 0;
+.desktop-profile-actions {
+    display: flex;
+    gap: 0.75rem;
 }
 
-.card-body { flex: 1; }
-
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
+.outline-btn {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    cursor: pointer;
 }
 
-.card-tags span {
-  font-size: 0.75rem;
-  background-color: var(--match-bg-gray);
-  color: var(--match-text-sub);
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
+.primary-btn {
+    flex: 1.5;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #ef4444;
+    color: white;
+    cursor: pointer;
 }
 
-.card-need-box {
-  background-color: #FFF5F5;
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+/* --- レスポンシブ（元に戻した設定） --- */
+@media (max-width: 640px) {
+    /* スマホ表示時: ヘッダーとフッターを非表示 */
+    .container > .header,
+    .container > .footer,
+    .container > header,
+    .container > footer {
+        display: none !important;
+    }
+
+    /* スマホ表示時: コンテナのパディングを削除して全画面表示 */
+    .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .mobile-match-section {
+        margin-top: 0;
+    }
+
+    .match-card {
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .back-link {
+        display: none;
+    }
 }
 
-.card-need-box p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--match-text-main);
-  margin: 0;
-}
+@media (min-width: 1024px) {
+    .mobile-match-section {
+        display: none;
+    }
 
-.card-location {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--match-text-sub);
-  margin-bottom: 1.5rem;
-}
+    .desktop-match-section {
+        display: block;
+    }
 
-.card-location .material-icons { font-size: 1rem; }
-
-.card-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: auto;
-}
-
-.btn-outline,
-.btn-primary {
-  flex: 1;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--color-gray-300);
-  color: var(--match-text-sub);
-}
-.btn-outline:hover {
-  background-color: var(--match-bg-gray);
-  color: var(--match-text-main);
-}
-
-.btn-primary {
-  background: var(--match-primary);
-  border: 1px solid var(--match-primary);
-  color: #fff;
-  box-shadow: 0 4px 6px rgba(255, 90, 95, 0.3);
-}
-.btn-primary:hover {
-  background: var(--match-primary-hover);
-  box-shadow: 0 6px 12px rgba(255, 90, 95, 0.4);
+    .desktop-match-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
 }
