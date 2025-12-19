@@ -1,0 +1,21 @@
+rules_version='2'
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // アバター画像のアップロード
+    match /avatars/{userId}/{fileName} {
+      // 認証済みユーザーは自分のアバターをアップロード可能
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024 // 5MB以下
+                   && request.resource.contentType.matches('image/.*');
+      // 認証済みユーザーはアバターを読み取り可能
+      allow read: if request.auth != null;
+    }
+    
+    // その他のパスは拒否
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

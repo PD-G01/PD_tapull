@@ -1,8 +1,6 @@
 # Node.js
 node_modules/
 
-.env
-
 # OS
 .DS_Store
 
@@ -15,6 +13,8 @@ firebase-debug.*.log
 # Env
 .env
 .env.local
+.env.*
+!/.env.example
 .npmrc
 
 # Logs
