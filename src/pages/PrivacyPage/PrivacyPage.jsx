@@ -141,7 +141,7 @@ export function PrivacyContent() {
         </p>
         <p>
           <strong>食PULL 運営事務局</strong><br />
-          メール: c1407448@st.kanazawa-it.ac.jp
+          メール: privacy@example.com
         </p>
       </section>
     </div>
