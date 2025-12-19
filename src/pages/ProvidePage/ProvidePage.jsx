@@ -37,7 +37,7 @@ export default function ProvidePage() {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, (user = auth.currentUser) => {
             if (user) {
                 setUserId(user.uid);
             } else {
