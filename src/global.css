@@ -74,6 +74,9 @@ body.dark-mode {
 .header {
     text-align: center;
     margin-bottom: 3rem; /* mb-12 */
+    position: static !important; /* 固定を解除 */
+    top: auto !important;
+    z-index: auto !important;
 }
 
 .header-content {

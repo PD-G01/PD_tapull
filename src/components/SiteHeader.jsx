@@ -8,7 +8,7 @@ import { db } from '../utils/firebase';
 function SiteHeader({
   title = '食PULL',
   subtitle = 'フードドライブをもっと身近に、もっと簡単に。',
-  logoSrc = '/image/食pull.png',
+  logoSrc = '/tapull.png',
   className = 'header'
 }) {
   const navigate = useNavigate();

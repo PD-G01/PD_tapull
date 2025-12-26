@@ -170,7 +170,7 @@ function MatchingPage() {
 
   return (
     <div className="container">
-      <SiteHeader subtitle="フードドライブマッチング機能への入り口" />
+      <SiteHeader />
 
       {/* Mobile 表示 */}
       <section className="mobile-match-section">
