@@ -1,0 +1,196 @@
+/* --- 共通 --- */
+.section-eyebrow {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 2.5rem auto 3rem;
+    color: var(--color-text-secondary-light);
+    text-decoration: none;
+    transition: color 200ms;
+}
+
+.back-link:hover {
+    color: var(--color-primary);
+}
+
+/* --- 提供者はこちらリンク（維持） --- */
+.desktop-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+/* --- モバイル: Tinder風カード --- */
+.mobile-match-section {
+    display: block;
+    margin-top: 1.5rem;
+}
+
+.match-card {
+    max-width: 420px;
+    margin: 0 auto;
+    background-color: var(--color-card-light);
+    border-radius: 30px;
+    padding: 1rem 1rem 2rem;
+    box-shadow: 0 20px 40px rgba(17, 24, 39, 0.15);
+}
+
+/* --- デスクトップ: 一覧カード（フラット版） --- */
+.desktop-match-section {
+    display: none;
+    margin-top: 3rem;
+}
+
+.desktop-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.desktop-profile-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 浮き出しを削除し、影の変化のみに抑制 */
+.desktop-profile-card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.desktop-profile-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.desktop-profile-header img,
+.no-image-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.desktop-profile-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.desktop-profile-loc {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.desktop-profile-need {
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.desktop-profile-tags span {
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+}
+
+.desktop-profile-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.outline-btn {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    cursor: pointer;
+}
+
+.primary-btn {
+    flex: 1.5;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #ef4444;
+    color: white;
+    cursor: pointer;
+}
+
+/* --- レスポンシブ（元に戻した設定） --- */
+@media (max-width: 640px) {
+    /* スマホ表示時: ヘッダーとフッターを非表示 */
+    .container > .header,
+    .container > .footer,
+    .container > header,
+    .container > footer {
+        display: none !important;
+    }
+
+    /* スマホ表示時: コンテナのパディングを削除して全画面表示 */
+    .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .mobile-match-section {
+        margin-top: 0;
+    }
+
+    .match-card {
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .back-link {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-match-section {
+        display: none;
+    }
+
+    .desktop-match-section {
+        display: block;
+    }
+
+    .desktop-match-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+}

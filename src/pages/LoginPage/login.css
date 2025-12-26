@@ -1,0 +1,240 @@
+/* login ページ用スタイル（SignupPageと同じ構成） */
+
+.no-scroll {
+  overflow: hidden;
+}
+
+/* メインコンテナ（SignupPageと同じ） */
+.main-container {
+  max-width: 640px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* カード（SignupPage の .signup-card と同じスタイル） */
+.login-card {
+  background: var(--color-white);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* セクションタイトル */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  color: var(--color-gray-900);
+}
+
+/* フォーム全体 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* エラーテキスト（SignupPageと同じスタイル） */
+.error-text {
+  display: block;
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+/* フォームグループ（SignupPageと同じ） */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: transparent;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input::placeholder {
+  color: var(--color-text-secondary-light);
+}
+
+.dark-mode .form-group input::placeholder {
+  color: var(--color-text-secondary-dark);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* プレースホルダ（入力例）の色を薄くする（クロスブラウザ対応） */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  /* 薄いグレー */
+  opacity: 1;
+  /* Firefox 対策 */
+}
+
+.form-group input::-webkit-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+.form-group input:-webkit-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+.form-group input::-moz-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  opacity: 1;
+}
+
+/* Firefox 19+ */
+.form-group input:-moz-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+  opacity: 1;
+}
+
+/* Firefox 4-18 */
+.form-group input:-ms-input-placeholder {
+  color: rgba(107, 114, 128, 0.55);
+}
+
+/* ダークモードでは別色で調整 */
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input::-webkit-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input:-webkit-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+.dark-mode .form-group input::-moz-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+  opacity: 1;
+}
+
+.dark-mode .form-group input:-moz-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+  opacity: 1;
+}
+
+.dark-mode .form-group input:-ms-input-placeholder {
+  color: rgba(156, 163, 175, 0.55);
+}
+
+/* パスワード入力（SignupPageと同じ） */
+.password-input {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkbox-group .checkbox-text {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  margin: 0;
+  cursor: pointer;
+}
+
+/* ログインボタン（SignupPage の .submit-button と同じスタイル） */
+.login-button {
+  width: 100%;
+  padding: 0.875rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1.5rem;
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.login-button:disabled {
+  background-color: var(--color-gray-400);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* リンクテキスト（SignupPageと同じ） */
+.link-text {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.link-text:hover {
+  text-decoration: underline;
+}
+
+/* ログインリンク（SignupPageと同じ） */
+.login-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+}
+
+/* レスポンシブ微調整（SignupPageと同じ基準） */
+@media (max-width: 640px) {
+  .main-container {
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+
+  .login-card {
+    padding: 1.5rem;
+  }
+}

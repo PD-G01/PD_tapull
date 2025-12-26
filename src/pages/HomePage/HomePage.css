@@ -1,0 +1,207 @@
+@charset "UTF-8";
+
+/* --- 特徴 (Features) --- */
+#features {
+    margin-bottom: 4rem; /* mb-16 */
+}
+
+.feature-grid {
+    display: grid;
+    gap: 2rem; /* gap-8 */
+}
+@media (min-width: 768px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+    }
+}
+@media (min-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(4, 1fr); /* lg:grid-cols-4 */
+    }
+}
+
+.feature-card {
+    background-color: var(--color-card-light);
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    transition: box-shadow 300ms;
+    text-align: center;
+}
+.dark-mode .feature-card {
+    background-color: var(--color-card-dark);
+}
+
+.feature-icon {
+    font-size: 3rem; /* text-5xl */
+    color: var(--color-primary);
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.feature-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600;
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.feature-description {
+    color: var(--color-text-secondary-light);
+}
+.dark-mode .feature-description {
+    color: var(--color-text-secondary-dark);
+}
+
+/* --- マッチングの流れ (Flow) --- */
+.flow-section {
+    background-color: var(--color-card-light);
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    padding: 2rem; /* p-8 */
+}
+.dark-mode .flow-section {
+    background-color: var(--color-card-dark);
+}
+
+.flow-steps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    text-align: center;
+}
+@media (min-width: 768px) {
+    .flow-steps {
+        flex-direction: row;
+        gap: 2rem;
+    }
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 180px;
+}
+
+.step-icon {
+    font-size: 3.75rem; /* text-6xl */
+    color: var(--color-primary);
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.step-title {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600;
+}
+
+.step-description {
+    color: var(--color-text-secondary-light);
+    font-size: 0.875rem;
+}
+.dark-mode .step-description {
+    color: var(--color-text-secondary-dark);
+}
+
+.flow-arrow {
+    color: var(--color-primary);
+    font-size: 2rem; /* text-4xl */
+    font-weight: 700;
+    transform: rotate(90deg);
+}
+@media (min-width: 768px) {
+    .flow-arrow {
+        transform: rotate(0deg); /* md:rotate-0 */
+    }
+}
+
+.highlight-box {
+    margin-top: 2rem; /* mt-8 */
+    text-align: center;
+    background-color: rgba(248, 113, 113, 0.1); /* bg-primary/10 */
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem;
+}
+.dark-mode .highlight-box {
+    background-color: rgba(248, 113, 113, 0.2); /* dark:bg-primary/20 */
+}
+
+.highlight-text {
+    font-size: 1.125rem; /* text-lg */
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+.highlight-text strong {
+    font-weight: 700;
+}
+@media (min-width: 768px) {
+    .highlight-text {
+        font-size: 1.25rem; /* md:text-xl */
+    }
+}
+
+/* --- レスポンシブ追加 --- */
+@media (max-width: 640px) {
+    #features {
+        margin-bottom: 2.5rem;
+    }
+
+    .feature-card {
+        padding: 1.25rem;
+    }
+
+    .feature-title {
+        font-size: 1.125rem;
+    }
+
+    .flow-section {
+        padding: 1.5rem;
+        border-radius: 0.25rem;
+        margin: 0 -0.5rem;
+    }
+
+    .flow-steps {
+        gap: 1.5rem;
+    }
+
+    .step-item {
+        max-width: none;
+        width: 100%;
+    }
+
+    .highlight-box {
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .feature-grid {
+        gap: 2.5rem;
+    }
+
+    .feature-card {
+        padding: 2rem;
+    }
+
+    .flow-section {
+        padding: 3rem;
+    }
+
+    .flow-steps {
+        gap: 3rem;
+    }
+
+    .step-item {
+        max-width: 220px;
+    }
+
+    .highlight-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+    }
+}
+
