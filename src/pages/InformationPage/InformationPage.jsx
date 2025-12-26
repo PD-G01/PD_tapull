@@ -1,15 +1,50 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { db, auth } from '../../utils/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import SiteHeader from '../../components/SiteHeader';
 import SiteFooter from '../../components/SiteFooter';
 import './information.css';
 import '../../global.css';
 
 function InformationPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { offerId, userId } = location.state || {};
   const [reportText, setReportText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [offerData, setOfferData] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // 認証状態を監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleMessage = () => {
-    window.location.href = 'mailto:info@example.org';
+    // マッチング申請のロジック（チャットルーム作成）
+    if (!currentUser) {
+      alert('ログインが必要です');
+      navigate('/login');
+      return;
+    }
+
+    if (!userId) {
+      alert('ユーザーIDが取得できませんでした');
+      return;
+    }
+
+    console.log('メッセージボタンがクリックされました');
+    console.log('取得したユーザーID:', userId);
+    console.log('ChatPageに遷移します。渡すuserId:', userId);
+    
+    // ChatPageに遷移し、userIdをstateで渡す
+    navigate('/chat', { state: { userId } });
   };
 
   const handleShare = async () => {
@@ -47,6 +82,86 @@ function InformationPage() {
     setReportText('');
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!offerId && !userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // offerデータを取得
+        if (offerId) {
+          const offerDocRef = doc(db, 'offer', offerId);
+          const offerDocSnap = await getDoc(offerDocRef);
+          if (offerDocSnap.exists()) {
+            setOfferData(offerDocSnap.data());
+          }
+        }
+
+        // userデータを取得
+        if (userId) {
+          const userDocRef = doc(db, 'user', userId);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            setUserData(userDocSnap.data());
+          }
+        }
+      } catch (err) {
+        console.error('データ取得エラー:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [offerId, userId]);
+
+  if (loading) {
+    return (
+      <div className="container">
+        <SiteHeader />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>読み込み中...</div>
+        <SiteFooter year={2025} />
+      </div>
+    );
+  }
+
+  if (!offerData && !userData) {
+    return (
+      <div className="container">
+        <SiteHeader />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>データが見つかりません</div>
+        <SiteFooter year={2025} />
+      </div>
+    );
+  }
+
+  const displayName = userData?.['user-name'] || '名前なし';
+  // アバター画像はuserテーブルのimageを優先、ない場合はデフォルト画像
+  const avatarImage = userData?.image || '/kkrn_icon_user_5.png';
+  // 食材画像はofferテーブルのfood_picture
+  const foodImage = offerData?.food_picture || null;
+  const displayLocation = offerData?.location || '場所不明';
+  const displayTags = offerData?.tags || [];
+  const foodName = offerData?.food_name || '食材名なし';
+  const foodInfo = offerData?.food_infomation || '情報なし';
+  
+  // created_atの処理（FirestoreのTimestampまたはDateオブジェクトに対応）
+  let formattedDate = '日付不明';
+  if (offerData?.created_at) {
+    try {
+      const createdAt = offerData.created_at.toDate ? offerData.created_at.toDate() : offerData.created_at;
+      formattedDate = createdAt.toLocaleDateString('ja-JP', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      });
+    } catch (e) {
+      console.error('日付の変換エラー:', e);
+    }
+  }
+
   return (
     <div className="container">
       <SiteHeader />
@@ -54,21 +169,13 @@ function InformationPage() {
       <main className="detail-container">
         <div className="card">
           <div className="detail-header">
-            <img className="avatar" src="/image/placeholder.jpg" alt="団体／ユーザー画像" />
+            <img className="avatar" src={avatarImage} alt={displayName} />
             <div className="meta">
               <h2 className="name">
-                フードバンク みらい{' '}
-                <span className="verified">
-                  <span className="material-icons">verified</span>認証済み
-                </span>
+                {displayName}
               </h2>
-              <div className="sub">非営利団体・受け取り拠点 — 最終更新: 2025-01-15</div>
+              <div className="sub">食材募集 — 最終更新: {formattedDate}</div>
               <div className="trust-row">
-                <div className="rating-display">
-                  <span className="material-icons">star</span>
-                  <strong>4.2</strong>
-                  <span className="review-count">(レビュー 32件)</span>
-                </div>
                 <div className="trust-item">
                   <span className="material-icons">shield</span>
                   <span>本人確認済み</span>
@@ -76,10 +183,9 @@ function InformationPage() {
               </div>
 
               <div className="tag-list">
-                <span className="tag">米</span>
-                <span className="tag">野菜</span>
-                <span className="tag">缶詰</span>
-                <span className="tag">調味料</span>
+                {displayTags.map((tag, index) => (
+                  <span key={index} className="tag">{tag}</span>
+                ))}
               </div>
 
               <div className="actions actions--top">
@@ -102,31 +208,15 @@ function InformationPage() {
                 <div className="info-row">
                   <span className="material-icons">location_on</span>
                   <div>
-                    <div className="info-title">東京都新宿区西新宿2-8-1</div>
-                    <div className="info-sub">最寄り駅: 新宿駅（徒歩12分）</div>
-                  </div>
-                </div>
-
-                <div className="info-row">
-                  <span className="material-icons">access_time</span>
-                  <div>
-                    <div className="info-title">営業時間</div>
-                    <div className="info-sub">平日 10:00 - 18:00 / 土 10:00 - 15:00 / 日・祝 休み</div>
-                  </div>
-                </div>
-
-                <div className="info-row">
-                  <span className="material-icons">phone</span>
-                  <div>
-                    <div className="info-title">連絡先</div>
-                    <div className="info-sub">03-xxxx-xxxx</div>
+                    <div className="info-title">{displayLocation}</div>
                   </div>
                 </div>
 
                 <div className="info-row">
                   <span className="material-icons">info</span>
                   <div className="info-text">
-                    受け取り条件: 常温保存可能な未開封品を優先して受け付けます。生鮮食品は事前連絡が必要です。
+                    <strong>募集食材:</strong> {foodName}<br />
+                    <strong>詳細情報:</strong> {foodInfo}
                   </div>
                 </div>
 
@@ -156,27 +246,6 @@ function InformationPage() {
                     </div>
                   </form>
                 </div>
-
-                <div className="reviews">
-                  <h3 className="section-title section-title--reviews">ユーザーレビュー</h3>
-                  <div className="review">
-                    <div className="review-meta">
-                      <strong>山田太郎</strong>
-                      <span>2025-10-10</span>
-                    </div>
-                    <div className="review-body">
-                      迅速に対応していただき助かりました。受け渡しもスムーズで安心できました。
-                    </div>
-                  </div>
-                  <div className="review">
-                    <div className="review-meta">
-                      <strong>佐藤花子</strong>
-                      <span>2025-09-28</span>
-                    </div>
-                    <div className="review-body">場所がわかりやすく、スタッフの方も丁寧でした。</div>
-                  </div>
-                  <div className="more-link">さらに表示する...</div>
-                </div>
               </div>
             </div>
 
@@ -185,26 +254,32 @@ function InformationPage() {
                 <h4 className="section-title">地図プレビュー</h4>
                 <div className="map-preview">ミニマップ（クリックで拡大）</div>
 
-                <h4 className="section-title">提供可能な食材</h4>
+                <h4 className="section-title">募集している食材</h4>
+                {foodImage && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <img 
+                      src={foodImage} 
+                      alt={foodName} 
+                      style={{ 
+                        width: '100%', 
+                        height: 'auto', 
+                        borderRadius: '8px',
+                        objectFit: 'cover'
+                      }} 
+                    />
+                  </div>
+                )}
                 <div className="tag-list tag-list--aside">
-                  <span className="tag">缶詰</span>
-                  <span className="tag">パスタ</span>
-                  <span className="tag">乾麺</span>
-                  <span className="tag">ベビーフード</span>
+                  {displayTags.map((tag, index) => (
+                    <span key={index} className="tag">{tag}</span>
+                  ))}
                 </div>
 
-                <h4 className="section-title">運営情報</h4>
+                <h4 className="section-title">ユーザー情報</h4>
                 <div className="aside-text">
-                  NPO法人 みらいフードバンク<br />
-                  設立: 2018年 / ボランティア数: 約30名
+                  {displayName}<br />
+                  {userData?.['mail-address'] && `メール: ${userData['mail-address']}`}
                 </div>
-
-                <h4 className="section-title">安全対策</h4>
-                <ul className="safety-list">
-                  <li>本人確認済みアカウント</li>
-                  <li>レビュー・評価システム</li>
-                  <li>運営による情報確認プロセス</li>
-                </ul>
               </div>
             </aside>
           </div>

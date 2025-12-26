@@ -36,7 +36,6 @@ const CHAT_SOCKET_URL =
 // Cloud Functionsの初期化
 const functions = getFunctions(app);
 const getPublicUserInfo = httpsCallable(functions, 'getPublicUserInfo');
-const searchUsers = httpsCallable(functions, 'searchUsers');
 
 function ChatPage() {
   const navigate = useNavigate();
@@ -50,12 +49,6 @@ function ChatPage() {
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected');
-  const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
-  const [newRoomPartnerId, setNewRoomPartnerId] = useState('');
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const socketRef = useRef(null);
   const messageListRef = useRef(null);
@@ -78,7 +71,15 @@ function ChatPage() {
     const partnerIdFromUrl = searchParams.get('userId');
     const partnerIdFromState = location.state?.userId;
 
+    console.log('ChatPage: ルーム作成チェック開始');
+    console.log('location.state:', location.state);
+    console.log('partnerIdFromUrl:', partnerIdFromUrl);
+    console.log('partnerIdFromState:', partnerIdFromState);
+    console.log('currentUser.uid:', currentUser.uid);
+
     const partnerId = partnerIdFromUrl || partnerIdFromState;
+    
+    console.log('最終的なpartnerId:', partnerId);
 
     if (partnerId && partnerId !== currentUser.uid) {
       // 既存のルームをチェック
@@ -102,8 +103,8 @@ function ChatPage() {
           if (existingRoom) {
             // 既存のルームがある場合はそれを選択
             setActiveRoomId(existingRoom.id);
-            // URLパラメータをクリア
-            navigate('/chat', { replace: true });
+            // URLパラメータとstateをクリア
+            navigate('/chat', { replace: true, state: null });
             return;
           }
 
@@ -117,7 +118,7 @@ function ChatPage() {
           } catch (error) {
             console.error('ユーザー情報取得エラー:', error);
             alert('指定されたユーザーが見つかりません');
-            navigate('/chat', { replace: true });
+            navigate('/chat', { replace: true, state: null });
             return;
           }
 
@@ -147,17 +148,17 @@ function ChatPage() {
 
           await setDoc(doc(db, 'chatRooms', roomId), roomData);
           setActiveRoomId(roomId);
-          // URLパラメータをクリア
-          navigate('/chat', { replace: true });
+          // URLパラメータとstateをクリア
+          navigate('/chat', { replace: true, state: null });
         } catch (error) {
           console.error('ルーム作成エラー:', error);
-          navigate('/chat', { replace: true });
+          navigate('/chat', { replace: true, state: null });
         }
       };
 
       checkAndCreateRoom();
     }
-  }, [currentUser, searchParams, location.state?.userId, navigate]);
+  }, [currentUser, searchParams, location.state, location.key, navigate]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -422,134 +423,6 @@ function ChatPage() {
     }
   };
 
-  // ユーザー検索機能（Cloud Function経由）
-  const handleSearchUsers = async (searchQuery) => {
-    if (!searchQuery.trim() || !currentUser) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const result = await searchUsers({
-        query: searchQuery,
-        currentUserId: currentUser.uid,
-      });
-      
-      const results = result.data.results.map((user) => ({
-        id: user.id,
-        name: user.name,
-        email: '', // セキュリティのため、メールアドレスは返さない
-      }));
-
-      setSearchResults(results);
-    } catch (error) {
-      console.error('ユーザー検索エラー:', error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleSelectUser = (userId) => {
-    setNewRoomPartnerId(userId);
-    setSearchQuery('');
-    setSearchResults([]);
-  };
-
-  const handleCreateRoom = async () => {
-    if (!currentUser || !newRoomPartnerId.trim() || isCreatingRoom) {
-      return;
-    }
-
-    const partnerId = newRoomPartnerId.trim();
-
-    // 自分自身とのルームは作成できない
-    if (partnerId === currentUser.uid) {
-      alert('自分自身とのチャットルームは作成できません');
-      return;
-    }
-
-    setIsCreatingRoom(true);
-
-    try {
-      // 相手のユーザー情報を取得（Cloud Function経由）
-      let partnerName = 'ユーザー';
-      let partnerImage = '';
-      try {
-        const result = await getPublicUserInfo({ userId: partnerId });
-        partnerName = result.data.name || 'ユーザー';
-        partnerImage = result.data.image || '';
-      } catch (error) {
-        console.error('ユーザー情報取得エラー:', error);
-        alert('指定されたユーザーが見つかりません');
-        setIsCreatingRoom(false);
-        return;
-      }
-
-      // 既存のルームをチェック（1対1のルームのみ：メンバーが2人で、両方のユーザーが含まれている）
-      const existingRoomsQuery = query(
-        collection(db, 'chatRooms'),
-        where('members', 'array-contains', currentUser.uid)
-      );
-      const existingRoomsSnapshot = await getDocs(existingRoomsQuery);
-      
-      const existingRoom = existingRoomsSnapshot.docs.find((doc) => {
-        const data = doc.data();
-        const members = data.members || [];
-        // 1対1のルームのみ：メンバーが2人で、両方のユーザーが含まれている
-        return members.length === 2 && 
-               members.includes(partnerId) && 
-               members.includes(currentUser.uid);
-      });
-
-      if (existingRoom) {
-        // 既存のルームがある場合はそれを選択
-        setActiveRoomId(existingRoom.id);
-        setShowCreateRoomModal(false);
-        setNewRoomPartnerId('');
-        setIsCreatingRoom(false);
-        return;
-      }
-
-      // 新しいルームを作成（1対1のルーム：メンバーは常に2人のみ）
-      const roomId = [currentUser.uid, partnerId].sort().join('_');
-      const currentUserName =
-        currentUser.displayName || currentUser.email || 'あなた';
-      const currentUserImage = currentUser.photoURL || '';
-      const roomData = {
-        members: [currentUser.uid, partnerId], // 常に2人のみ
-        title: partnerName,
-        displayName: partnerName,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastMessage: '',
-        isOneOnOne: true, // 1対1ルームのフラグ
-        membersInfo: {
-          [currentUser.uid]: {
-            name: currentUserName,
-            image: currentUserImage,
-          },
-          [partnerId]: {
-            name: partnerName,
-            image: partnerImage,
-          },
-        },
-      };
-
-      await setDoc(doc(db, 'chatRooms', roomId), roomData);
-
-      // 作成したルームを選択
-      setActiveRoomId(roomId);
-      setShowCreateRoomModal(false);
-      setNewRoomPartnerId('');
-    } catch (error) {
-      console.error('ルーム作成エラー:', error);
-      alert('ルームの作成に失敗しました');
-    } finally {
-      setIsCreatingRoom(false);
-    }
-  };
 
   const activeRoom = useMemo(
     () => rooms.find((room) => room.id === activeRoomId),
@@ -604,15 +477,6 @@ function ChatPage() {
           <header className="panel-header">
             <h2>トーク</h2>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                type="button"
-                className="icon-button primary"
-                aria-label="新しいルームを作成"
-                onClick={() => setShowCreateRoomModal(true)}
-                title="新しいルームを作成"
-              >
-                <span className="material-icons">add</span>
-              </button>
               <button type="button" className="icon-button" aria-label="トークを検索">
                 <span className="material-icons">search</span>
               </button>
@@ -728,111 +592,6 @@ function ChatPage() {
           </footer>
         </section>
       </main>
-
-      {/* ルーム作成モーダル */}
-      {showCreateRoomModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateRoomModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>新しいチャットルームを作成</h3>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setShowCreateRoomModal(false)}
-                aria-label="閉じる"
-              >
-                <span className="material-icons">close</span>
-              </button>
-            </div>
-            <div className="modal-body">
-              <label htmlFor="user-search" className="form-label">
-                ユーザーを検索
-              </label>
-              <div className="search-container">
-                <input
-                  id="user-search"
-                  type="text"
-                  className="form-input"
-                  placeholder="名前、またはユーザーIDで検索"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const query = e.target.value;
-                    setSearchQuery(query);
-                    handleSearchUsers(query);
-                  }}
-                  disabled={isCreatingRoom}
-                />
-                {isSearching && (
-                  <div className="search-loading">
-                    <span className="material-icons rotating">sync</span>
-                  </div>
-                )}
-              </div>
-
-              {searchResults.length > 0 && (
-                <div className="search-results">
-                  {searchResults.map((user) => (
-                    <button
-                      key={user.id}
-                      type="button"
-                      className="search-result-item"
-                      onClick={() => handleSelectUser(user.id)}
-                    >
-                      <div className="avatar-placeholder" aria-hidden="true">
-                        {user.name.slice(0, 1)}
-                      </div>
-                      <div className="search-result-info">
-                        <p className="search-result-name">{user.name}</p>
-                        {user.email && <p className="search-result-email">{user.email}</p>}
-                        <p className="search-result-id">ID: {user.id}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <label htmlFor="partner-id" className="form-label" style={{ marginTop: '16px' }}>
-                または、ユーザーIDを直接入力
-              </label>
-              <input
-                id="partner-id"
-                type="text"
-                className="form-input"
-                placeholder="ユーザーIDを入力してください"
-                value={newRoomPartnerId}
-                onChange={(e) => setNewRoomPartnerId(e.target.value)}
-                disabled={isCreatingRoom}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !isCreatingRoom && newRoomPartnerId.trim()) {
-                    handleCreateRoom();
-                  }
-                }}
-              />
-              <p className="form-hint">
-                検索結果から選択するか、ユーザーIDを直接入力してください
-              </p>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="button-secondary"
-                onClick={() => setShowCreateRoomModal(false)}
-                disabled={isCreatingRoom}
-              >
-                キャンセル
-              </button>
-              <button
-                type="button"
-                className="button-primary"
-                onClick={handleCreateRoom}
-                disabled={!newRoomPartnerId.trim() || isCreatingRoom}
-              >
-                {isCreatingRoom ? '作成中...' : '作成'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
