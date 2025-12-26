@@ -126,6 +126,53 @@
     gap: 0.75rem;
 }
 
+.detail-btn {
+    flex: 8;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-primary);
+    background: white;
+    color: var(--color-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.detail-btn:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.bookmark-btn {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.bookmark-btn:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.bookmark-btn.bookmarked {
+    background-color: #fef3c7;
+    border-color: #fbbf24;
+    color: #d97706;
+}
+
+.bookmark-btn .material-icons {
+    font-size: 1.5rem;
+}
+
 .outline-btn {
     flex: 1;
     padding: 0.65rem;

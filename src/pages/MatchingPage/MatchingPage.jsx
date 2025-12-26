@@ -1,16 +1,58 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { db } from "../../utils/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { Link, useNavigate } from "react-router-dom";
+import { db, auth } from "../../utils/firebase";
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
 import "./matching.css";
 import "../../global.css";
 
 function MatchingPage() {
+  const navigate = useNavigate();
   const [recommendedProfiles, setRecommendedProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [bookmarkedOffers, setBookmarkedOffers] = useState(new Set());
+
+  // 認証状態を監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // ブックマーク状態を取得
+  useEffect(() => {
+    if (!currentUser) {
+      setBookmarkedOffers(new Set());
+      return;
+    }
+
+    const fetchBookmarks = async () => {
+      try {
+        const bookmarksQuery = query(
+          collection(db, 'bookmarks'),
+          where('userId', '==', currentUser.uid)
+        );
+        const bookmarksSnapshot = await getDocs(bookmarksQuery);
+        const bookmarkedSet = new Set();
+        bookmarksSnapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          if (data.offerId) {
+            bookmarkedSet.add(data.offerId);
+          }
+        });
+        setBookmarkedOffers(bookmarkedSet);
+      } catch (error) {
+        console.error('ブックマーク取得エラー:', error);
+      }
+    };
+
+    fetchBookmarks();
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -44,6 +86,7 @@ function MatchingPage() {
           // 画像のフィールド名(food_infomation, user-name等)に正確に合わせる
           return {
             id: offerDoc.id,
+            userId: userId, // チャットルーム作成用のユーザーID
             name: userData["user-name"] || "名前なし",
             foodName: offerData.food_name || "食材名なし",
             need: offerData.food_infomation || "情報なし", // 画像の綴り(rなし)に対応
@@ -80,9 +123,54 @@ function MatchingPage() {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % recommendedProfiles.length);
   };
 
+  const handleBookmark = async (offerId) => {
+    if (!currentUser) {
+      alert('ログインが必要です');
+      navigate('/login');
+      return;
+    }
+
+    if (!offerId) {
+      alert('オファーIDが取得できませんでした');
+      return;
+    }
+
+    const bookmarkId = `${currentUser.uid}_${offerId}`;
+    const isBookmarked = bookmarkedOffers.has(offerId);
+
+    try {
+      if (isBookmarked) {
+        // ブックマークを削除
+        await deleteDoc(doc(db, 'bookmarks', bookmarkId));
+        setBookmarkedOffers((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(offerId);
+          return newSet;
+        });
+        console.log('ブックマークを削除しました:', offerId);
+      } else {
+        // ブックマークを追加
+        await setDoc(doc(db, 'bookmarks', bookmarkId), {
+          userId: currentUser.uid,
+          offerId: offerId,
+          createdAt: new Date(),
+        });
+        setBookmarkedOffers((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(offerId);
+          return newSet;
+        });
+        console.log('ブックマークを追加しました:', offerId);
+      }
+    } catch (error) {
+      console.error('ブックマーク操作エラー:', error);
+      alert('ブックマークの操作に失敗しました');
+    }
+  };
+
   return (
     <div className="container">
-      <SiteHeader subtitle="フードドライブマッチング機能への入り口" />
+      <SiteHeader />
 
       {/* Mobile 表示 */}
       <section className="mobile-match-section">
@@ -191,8 +279,23 @@ function MatchingPage() {
                 ))}
               </div>
               <div className="desktop-profile-actions">
-                <button type="button" className="outline-btn">詳細を見る</button>
-                <button type="button" className="primary-btn">マッチング申請</button>
+                <button 
+                  type="button" 
+                  className="outline-btn detail-btn"
+                  onClick={() => navigate('/information', { state: { offerId: profile.id, userId: profile.userId } })}
+                >
+                  詳細を見る
+                </button>
+                <button 
+                  type="button" 
+                  className={`bookmark-btn ${bookmarkedOffers.has(profile.id) ? 'bookmarked' : ''}`}
+                  onClick={() => handleBookmark(profile.id)}
+                  title={bookmarkedOffers.has(profile.id) ? 'ブックマークを解除' : 'ブックマークする'}
+                >
+                  <span className="material-icons">
+                    {bookmarkedOffers.has(profile.id) ? 'bookmark' : 'bookmark_border'}
+                  </span>
+                </button>
               </div>
             </article>
           ))}
