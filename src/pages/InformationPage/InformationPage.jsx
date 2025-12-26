@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { db, auth } from '../../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, setDoc, Timestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import SiteHeader from '../../components/SiteHeader';
 import SiteFooter from '../../components/SiteFooter';
@@ -26,7 +26,7 @@ function InformationPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleMessage = () => {
+  const handleMessage = async () => {
     // マッチング申請のロジック（チャットルーム作成）
     if (!currentUser) {
       alert('ログインが必要です');
@@ -39,12 +39,110 @@ function InformationPage() {
       return;
     }
 
+    // 自分自身とのチャットは不可
+    if (userId === currentUser.uid) {
+      alert('自分自身とはチャットできません');
+      return;
+    }
+
     console.log('メッセージボタンがクリックされました');
     console.log('取得したユーザーID:', userId);
-    console.log('ChatPageに遷移します。渡すuserId:', userId);
-    
-    // ChatPageに遷移し、userIdをstateで渡す
-    navigate('/chat', { state: { userId } });
+    console.log('現在のユーザーID:', currentUser.uid);
+
+    try {
+      // 既存のチャットルームをチェック
+      const existingRoomsQuery = query(
+        collection(db, 'chatRooms'),
+        where('members', 'array-contains', currentUser.uid)
+      );
+      const existingRoomsSnapshot = await getDocs(existingRoomsQuery);
+
+      const existingRoom = existingRoomsSnapshot.docs.find((doc) => {
+        const data = doc.data();
+        const members = data.members || [];
+        // 1対1のルームのみ：メンバーが2人で、両方のユーザーが含まれている
+        return members.length === 2 && 
+               members.includes(userId) && 
+               members.includes(currentUser.uid);
+      });
+
+      if (existingRoom) {
+        // 既存のルームがある場合はそのルームIDで遷移
+        console.log('既存のチャットルームが見つかりました:', existingRoom.id);
+        navigate('/chat', { state: { roomId: existingRoom.id } });
+        return;
+      }
+
+      // 新しいルームを作成
+      console.log('新しいチャットルームを作成します');
+      
+      // 相手の情報を取得（既にuserDataがある場合はそれを使用）
+      const partnerName = userData?.['user-name'] || 'ユーザー';
+      const partnerImage = userData?.image || '';
+      
+      // 自分の情報を取得
+      const currentUserName = currentUser.displayName || currentUser.email || 'あなた';
+      const currentUserImage = currentUser.photoURL || '';
+      
+      // ルームIDを生成（ソートして一意性を保証）
+      const roomId = [currentUser.uid, userId].sort().join('_');
+      
+      // ルームデータを作成
+      const roomData = {
+        members: [currentUser.uid, userId], // 常に2人のみ
+        title: partnerName,
+        displayName: partnerName,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        lastMessage: '',
+        isOneOnOne: true, // 1対1ルームのフラグ
+        membersInfo: {
+          [currentUser.uid]: {
+            name: currentUserName,
+            image: currentUserImage,
+          },
+          [userId]: {
+            name: partnerName,
+            image: partnerImage,
+          },
+        },
+      };
+
+      // Firestoreにチャットルームを作成
+      console.log('作成するルームデータ:', {
+        roomId,
+        roomData,
+        currentUserUid: currentUser.uid,
+        members: roomData.members
+      });
+      
+      // 既存のドキュメントをチェック
+      const roomDocRef = doc(db, 'chatRooms', roomId);
+      const roomDocSnap = await getDoc(roomDocRef);
+      
+      if (roomDocSnap.exists()) {
+        console.log('ルームは既に存在します。既存のルームを使用します。');
+        navigate('/chat', { state: { roomId } });
+        return;
+      }
+      
+      // 新規作成
+      console.log('setDocを実行します...');
+      console.log('roomId:', roomId);
+      console.log('roomData:', JSON.stringify(roomData, null, 2));
+      console.log('currentUser.uid:', currentUser.uid);
+      console.log('members配列:', roomData.members);
+      console.log('currentUser.uid in members:', roomData.members.includes(currentUser.uid));
+      
+      await setDoc(roomDocRef, roomData);
+      console.log('チャットルームを作成しました:', roomId);
+      
+      // ChatPageに遷移（作成したルームIDを渡す）
+      navigate('/chat', { state: { roomId } });
+    } catch (error) {
+      console.error('チャットルーム作成エラー:', error);
+      alert('チャットルームの作成に失敗しました。もう一度お試しください。');
+    }
   };
 
   const handleShare = async () => {
@@ -138,8 +236,9 @@ function InformationPage() {
   }
 
   const displayName = userData?.['user-name'] || '名前なし';
-  // アバター画像はuserテーブルのimageを優先、ない場合はデフォルト画像
-  const avatarImage = userData?.image || '/kkrn_icon_user_5.png';
+  // アバター画像はuserテーブルのimageを優先、ない場合や空文字列の場合はデフォルト画像
+  const userImage = userData?.image;
+  const avatarImage = (userImage && userImage.trim() !== '') ? userImage : '/kkrn_icon_user_5.png';
   // 食材画像はofferテーブルのfood_picture
   const foodImage = offerData?.food_picture || null;
   const displayLocation = offerData?.location || '場所不明';
@@ -169,7 +268,17 @@ function InformationPage() {
       <main className="detail-container">
         <div className="card">
           <div className="detail-header">
-            <img className="avatar" src={avatarImage} alt={displayName} />
+            <img 
+              className="avatar" 
+              src={avatarImage} 
+              alt={displayName}
+              onError={(e) => {
+                // 画像の読み込みに失敗した場合、デフォルト画像にフォールバック
+                if (e.target.src !== '/kkrn_icon_user_5.png') {
+                  e.target.src = '/kkrn_icon_user_5.png';
+                }
+              }}
+            />
             <div className="meta">
               <h2 className="name">
                 {displayName}

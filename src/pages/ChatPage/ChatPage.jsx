@@ -68,6 +68,15 @@ function ChatPage() {
   useEffect(() => {
     if (!currentUser) return;
 
+    // roomIdが直接渡されている場合は、そのルームを開く
+    const roomIdFromState = location.state?.roomId;
+    if (roomIdFromState) {
+      console.log('ChatPage: 指定されたルームIDで開きます:', roomIdFromState);
+      setActiveRoomId(roomIdFromState);
+      navigate('/chat', { replace: true, state: null });
+      return;
+    }
+
     const partnerIdFromUrl = searchParams.get('userId');
     const partnerIdFromState = location.state?.userId;
 
