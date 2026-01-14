@@ -187,6 +187,7 @@ function MyInformationPage() {
           finalAvatarURL = await getDownloadURL(avatarRef);
         } catch (storageError) {
           console.warn('画像アップロードエラー:', storageError);
+          setErrors(prev => ({ ...prev, avatar: '画像のアップロードに失敗しました。' }));
         }
       }
 
