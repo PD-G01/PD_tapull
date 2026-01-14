@@ -51,7 +51,7 @@ function ViewMapPage() {
               const directionsService = new window.google.maps.DirectionsService();
               const directionsRenderer = new window.google.maps.DirectionsRenderer();
               directionsRenderer.setMap(map);
-              
+
               // ルートの詳細を表示するパネルをセット
               const panel = document.getElementById('directions-panel');
               if (panel) {
@@ -78,6 +78,9 @@ function ViewMapPage() {
                       }
                     }
                   );
+                } else {
+                  alert('目的地の座標を取得できませんでした。住所を確認してください。');
+                  console.error('Geocode was not successful for the following reason: ' + status);
                 }
               });
             },
