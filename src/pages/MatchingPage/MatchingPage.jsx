@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db, auth } from "../../utils/firebase";
-import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
@@ -55,58 +55,60 @@ function MatchingPage() {
   }, [currentUser]);
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        // 1. offerコレクションから全ドキュメントを取得
-        const offerSnapshot = await getDocs(collection(db, "offer"));
-
-        if (offerSnapshot.empty) {
-          setRecommendedProfiles([]);
-          setLoading(false);
-          return;
-        }
-
-        // 2. 各offerに関連するuserドキュメントを並列で取得
-        const profilePromises = offerSnapshot.docs.map(async (offerDoc) => {
-          const offerData = offerDoc.data();
-          const userId = offerData.user_id;
-
-          let userData = {};
-          if (userId) {
-            // コレクション名は画像通り"user"を指定
-            const userDocRef = doc(db, "user", userId);
-            const userDocSnap = await getDoc(userDocRef);
-            
-            if (userDocSnap.exists()) {
-              userData = userDocSnap.data();
-            }
+    const fetchProfiles = () => {
+      const unsubscribe = onSnapshot(collection(db, "offer"), async (offerSnapshot) => {
+        try {
+          if (offerSnapshot.empty) {
+            setRecommendedProfiles([]);
+            setLoading(false);
+            return;
           }
 
-          // 3. offerとuserのデータを統合
-          // 画像のフィールド名(food_infomation, user-name等)に正確に合わせる
-          return {
-            id: offerDoc.id,
-            userId: userId, // チャットルーム作成用のユーザーID
-            name: userData["user-name"] || "名前なし",
-            foodName: offerData.food_name || "食材名なし",
-            need: offerData.food_infomation || "情報なし", // 画像の綴り(rなし)に対応
-            location: offerData.location || "場所不明",
-            avatar: offerData.food_picture || userData.image || "", 
-            tags: offerData.tags || [],
-            // 共通項目（必要に応じて初期値を設定）
-          };
-        });
+          // 2. 各offerに関連するuserドキュメントを並列で取得
+          const profilePromises = offerSnapshot.docs.map(async (offerDoc) => {
+            const offerData = offerDoc.data();
+            const userId = offerData.user_id;
 
-        const combinedProfiles = await Promise.all(profilePromises);
-        setRecommendedProfiles(combinedProfiles);
-      } catch (err) {
-        console.error("データ結合エラー:", err);
-      } finally {
-        setLoading(false);
-      }
+            let userData = {};
+            if (userId) {
+              // コレクション名は画像通り"user"を指定
+              const userDocRef = doc(db, "user", userId);
+              const userDocSnap = await getDoc(userDocRef);
+              
+              if (userDocSnap.exists()) {
+                userData = userDocSnap.data();
+              }
+            }
+
+            // 3. offerとuserのデータを統合
+            // 画像のフィールド名(food_infomation, user-name等)に正確に合わせる
+            return {
+              id: offerDoc.id,
+              userId: userId, // チャットルーム作成用のユーザーID
+              name: userData["user-name"] || "名前なし",
+              foodName: offerData.food_name || "食材名なし",
+              need: offerData.food_infomation || "情報なし", // 画像の綴り(rなし)に対応
+              location: offerData.location || "場所不明",
+              avatar: offerData.food_picture || userData.image || "", 
+              tags: offerData.tags || [],
+              // 共通項目（必要に応じて初期値を設定）
+            };
+          });
+
+          const combinedProfiles = await Promise.all(profilePromises);
+          setRecommendedProfiles(combinedProfiles);
+          setLoading(false);
+        } catch (err) {
+          console.error("データ結合エラー:", err);
+          setLoading(false);
+        }
+      });
+
+      return unsubscribe;
     };
 
-    fetchProfiles();
+    const unsubscribe = fetchProfiles();
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
