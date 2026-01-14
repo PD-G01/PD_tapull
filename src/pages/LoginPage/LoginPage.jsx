@@ -3,7 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import './login.css';
 import '../../global.css';
 import { auth } from '../../utils/firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, browserLocalPersistence } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  setPersistence, 
+  browserSessionPersistence, 
+  browserLocalPersistence,
+  sendPasswordResetEmail // 追加
+} from 'firebase/auth';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -12,19 +19,19 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState(''); // 完了メッセージ用
 
-  // 認証状態をチェックして、ログイン済みの場合はMatchingPageにリダイレクト
+  // 認証状態をチェック
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         navigate('/matching');
       }
     });
-
     return () => unsubscribe();
   }, [navigate]);
 
-  // このページでは画面全体のスクロールを無効化
+  // スクロール無効化
   useEffect(() => {
     document.body.classList.add('no-scroll');
     return () => document.body.classList.remove('no-scroll');
@@ -33,9 +40,9 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
 
     try {
-      // ログイン保持の設定
       const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
       await setPersistence(auth, persistence);
 
@@ -47,6 +54,28 @@ function LoginPage() {
     }
   };
 
+  // パスワード再設定メール送信処理
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('パスワードを再設定するには、まずメールアドレスを入力してください。');
+      return;
+    }
+    setError('');
+    setMessage('');
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage('パスワード再設定用のメールを送信した。メールを確認してほしい。');
+    } catch (error) {
+      console.error('パスワードリセットエラー:', error);
+      if (error.code === 'auth/user-not-found') {
+        setError('このメールアドレスは登録されていない。');
+      } else {
+        setError('メール送信に失敗した。しばらく時間を置いてから試してほしい。');
+      }
+    }
+  };
+
   return (
     <>
       <main className="main-container">
@@ -55,6 +84,7 @@ function LoginPage() {
             <h2 className="section-title">ログイン</h2>
 
             {error && <div className="error-text">{error}</div>}
+            {message && <div className="success-text" style={{ color: 'green', marginBottom: '1rem' }}>{message}</div>}
             
             <div className="form-group">
               <label htmlFor="email">メールアドレス</label>
@@ -87,11 +117,20 @@ function LoginPage() {
                 <button
                   type="button"
                   className="toggle-password"
-                  aria-label="パスワード表示切替"
-                  title="パスワード表示切替"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   <span className="material-icons">{showPassword ? 'visibility' : 'visibility_off'}</span>
+                </button>
+              </div>
+              {/* パスワード忘れリンクの追加 */}
+              <div style={{ textAlign: 'right', marginTop: '5px' }}>
+                <button 
+                  type="button" 
+                  onClick={handleForgotPassword}
+                  className="link-text"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', color: '#007bff' }}
+                >
+                  パスワードを忘れた方はこちら
                 </button>
               </div>
             </div>
@@ -122,4 +161,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-
