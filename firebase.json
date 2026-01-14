@@ -33,10 +33,6 @@
         "source": "**",
         "destination": "/index.html"
       }
-    ],
-    "predeploy": [
-      "npm ci",
-      "npm run build"
     ]
   }
 }
