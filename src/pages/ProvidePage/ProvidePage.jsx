@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { db, auth, storage } from '../../utils/firebase'; // storageを追加
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Storage用関数を追加
@@ -155,6 +156,10 @@ export default function ProvidePage() {
         <main className="provide-container" style={{ padding: "1rem" }}>
             <section className="flow-section" style={{ maxWidth: 820, margin: "1.25rem auto" }}>
                 <div style={{ padding: "1.25rem" }}>
+                    <Link to="/matching" className="back-link" aria-label="マッチングページへ戻る">
+                        <span className="material-icons" aria-hidden="true">arrow_back</span>
+                        戻る
+                    </Link>
                     <h2 className="feature-title">食品を提供する</h2>
                     
                     <form onSubmit={handleSubmit}>

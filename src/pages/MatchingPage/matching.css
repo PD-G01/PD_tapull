@@ -46,6 +46,43 @@
     box-shadow: 0 20px 40px rgba(17, 24, 39, 0.15);
 }
 
+/* --- Matching全体: チャットへ固定ボタン --- */
+.matching-chat-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.05rem;
+    border-radius: 999px;
+    background-color: var(--color-primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 14px 28px rgba(17, 24, 39, 0.18);
+    transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.matching-chat-fab:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(17, 24, 39, 0.22);
+}
+
+.matching-chat-fab:active {
+    transform: translateY(0);
+}
+
+.matching-chat-fab .material-icons {
+    font-size: 1.25rem;
+}
+
+.matching-chat-fab-text {
+    line-height: 1;
+}
+
 /* --- デスクトップ: 一覧カード（フラット版） --- */
 .desktop-match-section {
     display: none;
@@ -223,6 +260,12 @@
 
     .back-link {
         display: none;
+    }
+
+    .matching-chat-fab {
+        right: 16px;
+        bottom: 16px;
+        padding: 0.85rem 1rem;
     }
 }
 

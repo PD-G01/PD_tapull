@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -481,25 +481,20 @@ function ChatPage() {
     <div className="page-root chat-page-root">
       <SiteHeader />
 
+      <div className="chat-top-actions">
+        <Link to="/matching" className="chat-back-link" aria-label="マッチングページへ戻る">
+          <span className="material-icons" aria-hidden="true">arrow_back</span>
+          戻る
+        </Link>
+      </div>
+
       <main className="chat-page-container">
         <section className="conversation-list-panel">
           <header className="panel-header">
             <h2>トーク</h2>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button type="button" className="icon-button" aria-label="トークを検索">
-                <span className="material-icons">search</span>
-              </button>
             </div>
           </header>
-
-          <div className="conversation-search">
-            <span className="material-icons">search</span>
-            <input
-              type="text"
-              placeholder="トークルームとメッセージ検索"
-              disabled
-            />
-          </div>
 
           <div className="conversation-list">
             {isLoadingRooms && (
@@ -555,9 +550,6 @@ function ChatPage() {
                 <p className="chat-partner-name">
                   {activeRoom?.title || 'チャットルーム'}
                 </p>
-                <p className="chat-partner-status">
-                  ソケット: {socketStatus === 'connected' ? '接続中' : '未接続'}
-                </p>
               </div>
             </div>
           </header>
@@ -565,9 +557,6 @@ function ChatPage() {
           <div className="chat-body">{renderMessages()}</div>
 
           <footer className="chat-input-area">
-            <button type="button" className="icon-button" aria-label="写真を送信">
-              <span className="material-icons">image</span>
-            </button>
             <input
               type="text"
               placeholder={activeRoom ? 'メッセージを入力' : 'ルームを選択してください'}
@@ -585,9 +574,6 @@ function ChatPage() {
               }}
             />
             <div className="chat-input-actions">
-              <button type="button" className="icon-button" aria-label="スタンプを送信">
-                <span className="material-icons">emoji_emotions</span>
-              </button>
               <button
                 type="button"
                 className="icon-button primary"

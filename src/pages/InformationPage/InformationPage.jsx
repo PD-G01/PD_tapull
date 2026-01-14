@@ -283,6 +283,10 @@ function InformationPage() {
       <SiteHeader />
 
       <main className="detail-container">
+        <Link to="/matching" className="info-back-link" aria-label="マッチングページへ戻る">
+          <span className="material-icons" aria-hidden="true">arrow_back</span>
+          戻る
+        </Link>
         <div className="card">
           <div className="detail-header">
             <img 
@@ -394,17 +398,9 @@ function InformationPage() {
                     />
                   </div>
                 )}
-                <div className="tag-list tag-list--aside">
-                  {displayTags.map((tag, index) => (
-                    <span key={index} className="tag">{tag}</span>
-                  ))}
-                </div>
 
-                <h4 className="section-title">ユーザー情報</h4>
-                <div className="aside-text">
-                  {displayName}<br />
-                  {userData?.['mail-address'] && `メール: ${userData['mail-address']}`}
-                </div>
+
+                
               </div>
             </aside>
           </div>

@@ -5,6 +5,36 @@
   flex-direction: column;
 }
 
+.chat-top-actions {
+  width: min(1200px, 100%);
+  margin: 16px auto 0;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.chat-back-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(248, 113, 113, 0.25);
+}
+
+.chat-back-link .material-icons {
+  font-size: 1.15rem;
+}
+
 .chat-page-container {
   display: grid;
   grid-template-columns: 320px 1fr;
