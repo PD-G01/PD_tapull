@@ -19,10 +19,15 @@ function MatchingPage() {
   // 認証状態を監視
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        // ログインしていない場合はログイン画面にリダイレクト
+        navigate('/login');
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   // ブックマーク状態を取得
   useEffect(() => {

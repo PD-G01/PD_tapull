@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import './login.css';
 import '../../global.css';
 import { auth } from '../../utils/firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence, browserLocalPersistence } from 'firebase/auth';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -35,6 +35,10 @@ function LoginPage() {
     setError('');
 
     try {
+      // ログイン保持の設定
+      const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistence);
+
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/matching');
     } catch (error) {
