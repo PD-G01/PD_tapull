@@ -178,11 +178,12 @@ function ViewMapPage() {
     <div className="app-container">
       <SiteHeader subtitle={null} />
 
+      <button className="info-back-link map-back-button" onClick={() => navigate(-1)}>
+        <span className="material-icons">arrow_back</span>
+        戻る
+      </button>
+
       <main className="map-container">
-        <button className="info-back-link" onClick={() => navigate(-1)}>
-          <span className="material-icons">arrow_back</span>
-          戻る
-        </button>
         <div id="map" ref={mapRef}></div>
 
         <div className="location-popup" style={{ display: 'none' }}>

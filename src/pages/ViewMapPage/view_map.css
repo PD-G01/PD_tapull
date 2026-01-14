@@ -1,6 +1,6 @@
 .map-container {
     position: relative;
-    height: calc(100vh - 80px); /* ヘッダーの高さを引いた残り */
+    height: calc(100vh - 80px - 60px); /* ヘッダーとボタンの高さを引いた残り */
     width: 100%;
 }
 
@@ -14,12 +14,11 @@
     color: var(--color-primary);
     text-decoration: none;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin: 10px 20px;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     border: none;
     cursor: pointer;
 }
-
 .info-back-link:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(248, 113, 113, 0.25);
