@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SiteHeader from '../../components/SiteHeader';
 import '../../global.css';
 import './view_map.css';
@@ -7,6 +7,7 @@ import './view_map.css';
 function ViewMapPage() {
   const mapRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { location: targetLocation, userName } = location.state || {};
   const [currentPosition, setCurrentPosition] = useState(null);
   const currentMarkerRef = useRef(null);
@@ -177,8 +178,13 @@ function ViewMapPage() {
     <div className="app-container">
       <SiteHeader subtitle={null} />
 
+      <button className="info-back-link map-back-button" onClick={() => navigate(-1)}>
+        <span className="material-icons">arrow_back</span>
+        戻る
+      </button>
+
       <main className="map-container">
-        <div id="map" ref={mapRef} style={{ width: '100%', height: '500px' }}></div>
+        <div id="map" ref={mapRef}></div>
 
         <div className="location-popup" style={{ display: 'none' }}>
           <div className="popup-content">
