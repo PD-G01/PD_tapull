@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -480,6 +480,13 @@ function ChatPage() {
   return (
     <div className="page-root chat-page-root">
       <SiteHeader />
+
+      <div className="chat-top-actions">
+        <Link to="/matching" className="chat-back-link" aria-label="マッチングページへ戻る">
+          <span className="material-icons" aria-hidden="true">arrow_back</span>
+          戻る
+        </Link>
+      </div>
 
       <main className="chat-page-container">
         <section className="conversation-list-panel">

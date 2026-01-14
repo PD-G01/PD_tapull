@@ -309,10 +309,6 @@ function MatchingPage() {
         </div>
       </section>
 
-      <Link to="/" className="back-link">
-        <span className="material-icons">arrow_back</span>
-        トップページへ戻る
-      </Link>
       <SiteFooter links={[]} />
     </div>
   );
