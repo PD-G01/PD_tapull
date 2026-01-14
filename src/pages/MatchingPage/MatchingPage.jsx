@@ -174,6 +174,11 @@ function MatchingPage() {
     <div className="container">
       <SiteHeader />
 
+      <Link to="/chat" className="matching-chat-fab" aria-label="チャットページへ">
+        <span className="material-icons" aria-hidden="true">chat</span>
+        <span className="matching-chat-fab-text">チャット</span>
+      </Link>
+
       {/* Mobile 表示 */}
       <section className="mobile-match-section">
         <div className="match-card">
