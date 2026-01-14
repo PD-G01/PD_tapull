@@ -1,13 +1,94 @@
 import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import SiteHeader from '../../components/SiteHeader';
 import '../../global.css';
 import './view_map.css';
 
 function ViewMapPage() {
   const mapRef = useRef(null);
+  const location = useLocation();
+  const { location: targetLocation, userName } = location.state || {};
 
   useEffect(() => {
-    // Google Maps APIの読み込み
+    const initMap = () => {
+      if (!mapRef.current || !window.google) return;
+
+      // 基本の地図表示（ルート案内がない場合のデフォルト）
+      const defaultPos = { lat: 36.52836, lng: 136.62714 };
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: defaultPos,
+        zoom: 15,
+      });
+
+      if (targetLocation) {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+
+              map.setCenter(pos);
+
+              // 現在地に青いドットのマーカー
+              new window.google.maps.Marker({
+                position: pos,
+                map: map,
+                title: 'あなたの現在地',
+                icon: {
+                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" fill="#4285F4"/>
+                      <circle cx="12" cy="12" r="4" fill="white"/>
+                    </svg>
+                  `),
+                  scaledSize: new window.google.maps.Size(24, 24),
+                },
+              });
+
+              const geocoder = new window.google.maps.Geocoder();
+              const directionsService = new window.google.maps.DirectionsService();
+              const directionsRenderer = new window.google.maps.DirectionsRenderer();
+              directionsRenderer.setMap(map);
+              
+              // ルートの詳細を表示するパネルをセット
+              const panel = document.getElementById('directions-panel');
+              if (panel) {
+                directionsRenderer.setPanel(panel);
+              }
+
+              geocoder.geocode({ address: targetLocation }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                  new window.google.maps.Marker({
+                    position: results[0].geometry.location,
+                    map: map,
+                    title: userName || '目的地',
+                  });
+
+                  directionsService.route(
+                    {
+                      origin: pos,
+                      destination: results[0].geometry.location,
+                      travelMode: window.google.maps.TravelMode.DRIVING,
+                    },
+                    (result, status) => {
+                      if (status === 'OK') {
+                        directionsRenderer.setDirections(result);
+                      }
+                    }
+                  );
+                }
+              });
+            },
+            () => {
+              console.warn('現在地の取得に失敗しました');
+            }
+          );
+        }
+      }
+    };
+
     const loadGoogleMaps = () => {
       if (window.google) {
         initMap();
@@ -22,16 +103,6 @@ function ViewMapPage() {
       document.head.appendChild(script);
     };
 
-    const initMap = () => {
-      if (mapRef.current && window.google) {
-        new window.google.maps.Map(mapRef.current, {
-          // 金沢工業大学 扇が丘キャンパスの座標
-          center: { lat: 36.52836, lng: 136.62714 },
-          zoom: 15 // 大学周辺を詳細に表示するため、ズームレベルを調整
-        });
-      }
-    };
-
     loadGoogleMaps();
 
     return () => {
@@ -39,28 +110,14 @@ function ViewMapPage() {
         delete window.initMap;
       }
     };
-  }, []);
+  }, [targetLocation, userName]);
 
   return (
     <div className="app-container">
       <SiteHeader subtitle={null} />
 
       <main className="map-container">
-        <div id="map" ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
-
-        <div className="control-panel">
-          <div className="search-bar">
-            <span className="material-icons">search</span>
-            <input type="text" placeholder="場所を検索" />
-          </div>
-
-          <div className="filter-panel">
-            <button className="filter-button">
-              <span className="material-icons">filter_list</span>
-              フィルター
-            </button>
-          </div>
-        </div>
+        <div id="map" ref={mapRef} style={{ width: '100%', height: '500px' }}></div>
 
         <div className="location-popup" style={{ display: 'none' }}>
           <div className="popup-content">
@@ -70,40 +127,6 @@ function ViewMapPage() {
                 <span className="material-icons">close</span>
               </button>
             </div>
-            <div className="location-details">
-              <div className="location-image">
-                <img src="/image/placeholder.jpg" alt="場所の画像" />
-              </div>
-              <h4 className="location-name">フードバンク名称</h4>
-              <div className="location-info">
-                <p className="location-address">
-                  <span className="material-icons">location_on</span>
-                  住所が表示されます
-                </p>
-                <p className="location-time">
-                  <span className="material-icons">access_time</span>
-                  営業時間: 9:00-18:00
-                </p>
-              </div>
-              <div className="food-info">
-                <h5>提供可能な食材</h5>
-                <div className="food-tags">
-                  <span className="food-tag">米</span>
-                  <span className="food-tag">野菜</span>
-                  <span className="food-tag">缶詰</span>
-                </div>
-              </div>
-              <div className="action-buttons">
-                <button className="contact-button primary-button">
-                  <span className="material-icons">message</span>
-                  連絡する
-                </button>
-                <button className="share-button secondary-button">
-                  <span className="material-icons">share</span>
-                  共有
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </main>
@@ -112,4 +135,3 @@ function ViewMapPage() {
 }
 
 export default ViewMapPage;
-
