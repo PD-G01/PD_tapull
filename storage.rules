@@ -12,6 +12,16 @@ service firebase.storage {
       allow read: if request.auth != null;
     }
     
+    // 食品画像のアップロード
+    match /food_images/{userId}/{fileName} {
+      // 認証済みユーザーは自分の食品画像をアップロード可能
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024 // 5MB以下
+                   && request.resource.contentType.matches('image/.*');
+      // 認証済みユーザーは食品画像を読み取り可能
+      allow read: if request.auth != null;
+    }
+    
     // その他のパスは拒否
     match /{allPaths=**} {
       allow read, write: if false;
