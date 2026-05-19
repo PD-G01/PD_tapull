@@ -294,7 +294,7 @@ function MatchingPage() {
                 <button 
                   type="button" 
                   className="outline-btn detail-btn"
-                  onClick={() => navigate('/information', { state: { offerId: profile.id, userId: profile.userId } })}
+                  onClick={() => navigate(`/information?offerId=${profile.id}&userId=${profile.userId}`, { state: { offerId: profile.id, userId: profile.userId } })}
                 >
                   詳細を見る
                 </button>

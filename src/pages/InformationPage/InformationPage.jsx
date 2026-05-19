@@ -11,7 +11,12 @@ import '../../global.css';
 function InformationPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { offerId, userId } = location.state || {};
+  const searchParams = new URLSearchParams(location.search);
+  const offerIdFromQuery = searchParams.get('offerId');
+  const userIdFromQuery = searchParams.get('userId');
+  const { offerId: offerIdFromState, userId: userIdFromState } = location.state || {};
+  const offerId = offerIdFromState || offerIdFromQuery;
+  const userId = userIdFromState || userIdFromQuery;
   const [reportText, setReportText] = useState('');
   const [loading, setLoading] = useState(true);
   const [offerData, setOfferData] = useState(null);
