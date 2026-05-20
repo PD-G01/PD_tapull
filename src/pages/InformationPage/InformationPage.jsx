@@ -225,14 +225,19 @@ function InformationPage() {
     };
 
     const loadGoogleMaps = () => {
+      const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      if (!googleMapsApiKey) {
+        console.error('Google Maps API key is missing. Set VITE_GOOGLE_MAPS_API_KEY in the build environment.');
+        return;
+      }
+
       if (window.google) {
         initMap();
         return;
       }
 
       const script = document.createElement('script');
-      // 注意: Vite環境変数 import.meta.env.VITE_GOOGLE_MAPS_API_KEY が設定されている前提
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap&language=ja`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap&language=ja`;
       script.async = true;
       script.defer = true;
       window.initMap = initMap;
